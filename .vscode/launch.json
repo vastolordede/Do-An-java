@@ -1,0 +1,33 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "AdminMain",
+      "request": "launch",
+      "mainClass": "flightbooking.gui.admin.AdminMain",
+      "projectName": "FlightBooking - Local_7c73da2f"
+    },
+    {
+      "type": "java",
+      "name": "AdminMain",
+      "request": "launch",
+      "mainClass": "flightbooking.gui.admin.AdminMain",
+      "projectName": "FlightBooking_2f5377b7"
+    },
+    {
+      "type": "java",
+      "name": "UserMain",
+      "request": "launch",
+      "mainClass": "flightbooking.gui.user.UserMain",
+      "projectName": "FlightBooking_2f5377b7"
+    },
+    {
+      "type": "java",
+      "name": "TestDB",
+      "request": "launch",
+      "mainClass": "flightbooking.TestDB",
+      "projectName": "FlightBooking_2f5377b7"
+    }
+  ]
+}
