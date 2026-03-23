@@ -76,10 +76,8 @@ btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
 
-    JPanel wrap = wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
-    JPanel genRow = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    genRow.add(btnGen);
-    wrap.add(genRow, BorderLayout.SOUTH);
+    JPanel wrap = wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport, btnGen);
+    
     return wrap;
 }
 

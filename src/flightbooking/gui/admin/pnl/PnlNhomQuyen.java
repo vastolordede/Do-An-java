@@ -43,7 +43,7 @@ public class PnlNhomQuyen extends JPanel {
         ACTION_MAP.put("quản lý hãng hàng không", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý máy bay", new String[]{"Thêm", "Sửa", "Xóa", "Tạo ghế", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý nhân viên", new String[]{"Thêm", "Sửa", "Xóa", "Phân quyền", "Xuất Excel", "Nhập Excel"});
-        ACTION_MAP.put("quản lý nhóm quyền", new String[]{"Tạo", "Cập nhật", "Xóa", "Xuất Excel", "Nhập Excel"});
+        ACTION_MAP.put("quản lý nhóm quyền", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
     }
 
     private static final String[] DEFAULT_ACTIONS = {"Thêm", "Sửa", "Xóa"};
@@ -130,11 +130,11 @@ public class PnlNhomQuyen extends JPanel {
     }
 
     private void loadActionMap() {
-        List<QuyenActionDTO> list = new QuyenActionDAO().findAll();
-        for (QuyenActionDTO a : list) {
-            actionMap.put(a.getTenquyen().toLowerCase(), a.getId());
-        }
+    List<QuyenActionDTO> list = new QuyenActionDAO().findAll();
+    for (QuyenActionDTO a : list) {
+        actionMap.put(a.getTenquyen().toLowerCase(), a.getId());
     }
+}
 
     private void loadQuyen() {
 
@@ -223,7 +223,7 @@ public class PnlNhomQuyen extends JPanel {
         List<Integer> perms = new NhomQuyenDAO().getPermissionsByNhom(id);
 
         // 🔥 LẤY ACTION ĐÚNG CHỖ
-        List<Integer> actions = new NhomQuyenDAO().getActionByNhom(id);
+        
 
         for (JCheckBox cb : checkBoxes) {
 
@@ -236,7 +236,7 @@ public class PnlNhomQuyen extends JPanel {
             if (panelCon != null) {
 
                 panelCon.setVisible(has);
-
+List<Integer> actionIds = new NhomQuyenDAO().getActionByQuyen(qid);
                 for (Component c : panelCon.getComponents()) {
 
                     if (c instanceof JCheckBox) {
@@ -245,7 +245,7 @@ public class PnlNhomQuyen extends JPanel {
                         Integer aid = (Integer) cbCon.getClientProperty("id");
 
                         if (aid != null) {
-                            cbCon.setSelected(actions.contains(aid));
+                            cbCon.setSelected(actionIds.contains(aid));
                         }
                     }
                 }
@@ -265,26 +265,7 @@ public class PnlNhomQuyen extends JPanel {
         return list;
     }
 
-    private List<Integer> getSelectedAction() {
-
-        List<Integer> list = new ArrayList<>();
-
-        for (JPanel panel : mapPanelCon.values()) {
-            for (Component c : panel.getComponents()) {
-
-                if (c instanceof JCheckBox) {
-                    JCheckBox cb = (JCheckBox) c;
-
-                    if (cb.isSelected()) {
-                        list.add((Integer) cb.getClientProperty("id"));
-                    }
-                }
-
-            }
-        }
-
-        return list;
-    }
+    
 
     private void save() {
         try {
@@ -308,7 +289,7 @@ public class PnlNhomQuyen extends JPanel {
             bus.updateNhomQuyen(id, txtTen.getText(), getSelected());
 
             // 🔥 lưu action
-            bus.saveActionForNhom(id, getSelectedAction());
+            
 
             loadTable();
 

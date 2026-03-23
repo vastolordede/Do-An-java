@@ -25,23 +25,20 @@ public class NhomQuyenBUS {
 
         dao.insertQuyen(id, quyenIds);
     }
+
     public void updateNhomQuyen(int id, String ten, List<Integer> quyenIds) {
 
-    if (ten == null || ten.trim().isEmpty())
-        throw new RuntimeException("Tên không hợp lệ");
+        if (ten == null || ten.trim().isEmpty())
+            throw new RuntimeException("Tên không hợp lệ");
 
-    dao.updateNhomQuyen(id, ten);
+        dao.updateNhomQuyen(id, ten);
 
-    dao.deleteAllQuyen(id);
-    dao.insertQuyen(id, quyenIds);
-}
+        dao.deleteAllQuyen(id);
+        dao.insertQuyen(id, quyenIds);
+    }
 
-public void deleteNhomQuyen(int id) {
-    dao.deleteAllQuyen(id);
-    dao.deleteNhomQuyen(id);
-}
-
-public void saveActionForNhom(int nhomId, List<Integer> actionIds) {
-    new NhomQuyenDAO().saveActionForNhom(nhomId, actionIds);
-}
+    public void deleteNhomQuyen(int id) {
+        dao.deleteAllQuyen(id);
+        dao.deleteNhomQuyen(id);
+    }
 }

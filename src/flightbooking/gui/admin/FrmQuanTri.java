@@ -17,6 +17,7 @@ import flightbooking.util.SessionContext;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class FrmQuanTri extends JFrame {
@@ -41,21 +42,29 @@ public class FrmQuanTri extends JFrame {
         // Lấy danh sách action của nhóm quyền hiện tại
         // Admin thì có tất cả quyền
         List<Integer> actions;
-        if (isAdmin) {
-            actions = List.of(
-                ActionConstants.THEM,
-                ActionConstants.XOA,
-                ActionConstants.SUA,
-                ActionConstants.TAO_VE,
-                ActionConstants.GIA_HANG_GHE,
-                ActionConstants.SO_DO_GHE,
-                ActionConstants.TAO_GHE,
-                ActionConstants.LAM_MOI,
-                ActionConstants.PHAN_QUYEN
-            );
-        } else {
-            actions = new NhomQuyenDAO().getActionByNhom(nhomId);
-        }
+
+if (isAdmin) {
+    actions = List.of(
+        ActionConstants.THEM,
+        ActionConstants.XOA,
+        ActionConstants.SUA,
+        ActionConstants.TAO_VE,
+        ActionConstants.GIA_HANG_GHE,
+        ActionConstants.SO_DO_GHE,
+        ActionConstants.TAO_GHE,
+        ActionConstants.LAM_MOI,
+        ActionConstants.PHAN_QUYEN
+    );
+} else {
+
+    actions = new ArrayList<>();
+
+    List<Integer> perms = new NhomQuyenDAO().getPermissionsByNhom(nhomId);
+
+    for (int quyenId : perms) {
+        actions.addAll(new NhomQuyenDAO().getActionByQuyen(quyenId));
+    }
+}
 
         // Tạo các panel và apply quyền
         PnlQuanLyMayBay pnlMayBay = new PnlQuanLyMayBay();
