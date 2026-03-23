@@ -4,7 +4,7 @@ import flightbooking.bus.ChuyenBayBUS;
 import flightbooking.bus.DatVeBUS;
 import flightbooking.bus.ThongTinVeBUS;
 import flightbooking.dto.ChuyenBayDTO;
-import flightbooking.dto.GheDTO;
+
 import flightbooking.dto.HanhKhachDTO;
 import flightbooking.dto.ThongTinVeDTO;
 import flightbooking.util.ActionConstants;
@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 public class PnlDatVeAdmin extends JPanel {
 
@@ -281,20 +281,7 @@ int gheId = gheIdDaChon;
         }
     }
 
-    private static class GheItem {
-        final int id;
-        final String text;
-
-        GheItem(int id, String text) {
-            this.id = id;
-            this.text = text;
-        }
-
-        @Override
-        public String toString() {
-            return text;
-        }
-    }
+    
     public void applyPermissions(List<Integer> actionIds) {
     btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
     revalidate(); repaint();

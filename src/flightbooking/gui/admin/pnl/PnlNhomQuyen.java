@@ -8,7 +8,7 @@ import flightbooking.dto.NhomQuyenDTO;
 import flightbooking.dto.QuyenDTO;
 import flightbooking.util.ActionConstants;
 import flightbooking.dto.QuyenActionDTO;
-import flightbooking.util.ExcelImporter;
+
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -40,6 +40,7 @@ public class PnlNhomQuyen extends JPanel {
         ACTION_MAP.put("quản lý tuyến bay", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý chuyến bay", new String[]{"Thêm", "Sửa", "Xóa", "Giá hạng ghế", "Sơ đồ ghế", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("đặt vé (quầy)", new String[]{"Tạo vé", "Xuất Excel", "Nhập Excel"});
+        ACTION_MAP.put("quản lý vé", new String[]{"Hủy vé", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý hãng hàng không", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý máy bay", new String[]{"Thêm", "Sửa", "Xóa", "Tạo ghế", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý nhân viên", new String[]{"Thêm", "Sửa", "Xóa", "Phân quyền", "Xuất Excel", "Nhập Excel"});

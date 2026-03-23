@@ -12,4 +12,5 @@ public class ActionConstants {
     public static final int PHAN_QUYEN = 9;
     public static final int XUAT_EXCEL = 10;
     public static final int NHAP_EXCEL = 11;
+    public static final int HUY_VE = 12;
 }

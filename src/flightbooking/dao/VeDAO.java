@@ -133,4 +133,125 @@ public class VeDAO extends BaseDAO {
 
     return list;
 }
+public List<VeDTO> searchForQuanLyVe(
+        Integer chuyenBayId,
+        String hoTen,
+        String soGiayTo,
+        Integer trangThai
+) {
+    StringBuilder sql = new StringBuilder(
+        "select v.ve_id, v.chuyenbay_id, v.ghe_id, v.hanhkhach_id, " +
+        "       v.taikhoannhanvien_id, v.taikhoankhachhang_id, " +
+        "       v.giachot, v.thuechot, v.trangthai, v.thoidiemtao, " +
+        "       hk.hoten as ho_ten_hanh_khach, hk.sogiayto, " +
+        "       g.tenghe, h.tenhangghe, " +
+        "       kh.email as email_khachhang, " +
+        "       nv.hoten as ten_nhan_vien, " +
+        "       hd.ngaytao as ngay_tao_hoa_don, hd.tongtien as tong_tien_hoa_don " +
+        "from ve v " +
+        "left join hanhkhach hk on hk.hanhkhach_id = v.hanhkhach_id " +
+        "left join ghe g on g.ghe_id = v.ghe_id " +
+        "left join hangghe h on h.hangghe_id = g.hangghe_id " +
+        "left join taikhoankhachhang kh on kh.taikhoankhachhang_id = v.taikhoankhachhang_id " +
+        "left join taikhoannhanvien tknv on tknv.taikhoannhanvien_id = v.taikhoannhanvien_id " +
+        "left join nhanvien nv on nv.nhanvien_id = tknv.nhanvien_id " +
+        "left join hoadonve hdv on hdv.ve_id = v.ve_id " +
+        "left join hoadon hd on hd.hoadon_id = hdv.hoadon_id " +
+        "where 1=1 "
+    );
+
+    List<Object> params = new ArrayList<>();
+
+    if (chuyenBayId != null) {
+        sql.append(" and v.chuyenbay_id = ? ");
+        params.add(chuyenBayId);
+    }
+
+    if (hoTen != null && !hoTen.trim().isEmpty()) {
+        sql.append(" and lower(hk.hoten) like ? ");
+        params.add("%" + hoTen.trim().toLowerCase() + "%");
+    }
+
+    if (soGiayTo != null && !soGiayTo.trim().isEmpty()) {
+        sql.append(" and lower(hk.sogiayto) like ? ");
+        params.add("%" + soGiayTo.trim().toLowerCase() + "%");
+    }
+
+    if (trangThai != null && trangThai != -1) {
+        sql.append(" and v.trangthai = ? ");
+        params.add(trangThai);
+    }
+
+    sql.append(" order by v.ve_id desc ");
+
+    List<VeDTO> list = new ArrayList<>();
+
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql.toString())) {
+
+        for (int i = 0; i < params.size(); i++) {
+            Object p = params.get(i);
+            if (p instanceof Integer) {
+                ps.setInt(i + 1, (Integer) p);
+            } else {
+                ps.setString(i + 1, String.valueOf(p));
+            }
+        }
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                VeDTO v = new VeDTO();
+
+                v.setVeId(rs.getInt("ve_id"));
+                v.setChuyenBayId((Integer) rs.getObject("chuyenbay_id"));
+                v.setGheId((Integer) rs.getObject("ghe_id"));
+                v.setHanhKhachId((Integer) rs.getObject("hanhkhach_id"));
+                v.setTaiKhoanNhanVienId((Integer) rs.getObject("taikhoannhanvien_id"));
+                v.setTaiKhoanKhachHangId((Integer) rs.getObject("taikhoankhachhang_id"));
+                v.setGiaChot(rs.getBigDecimal("giachot"));
+                v.setThueChot(rs.getBigDecimal("thuechot"));
+                v.setTrangThai((Integer) rs.getObject("trangthai"));
+
+                Timestamp ts1 = rs.getTimestamp("thoidiemtao");
+                if (ts1 != null) v.setThoiDiemTao(ts1.toLocalDateTime());
+
+                Timestamp ts2 = rs.getTimestamp("ngay_tao_hoa_don");
+                if (ts2 != null) v.setNgayTaoHoaDon(ts2.toLocalDateTime());
+
+                v.setTongTienHoaDon(rs.getBigDecimal("tong_tien_hoa_don"));
+                v.setHoTenHanhKhach(rs.getString("ho_ten_hanh_khach"));
+                v.setSoGiayTo(rs.getString("sogiayto"));
+                v.setTenGhe(rs.getString("tenghe"));
+                v.setTenHangGhe(rs.getString("tenhangghe"));
+                v.setEmailKhachHang(rs.getString("email_khachhang"));
+                v.setTenNhanVien(rs.getString("ten_nhan_vien"));
+
+                list.add(v);
+            }
+        }
+
+    } catch (SQLException e) {
+        throw new RuntimeException("ve searchForQuanLyVe failed", e);
+    }
+
+    return list;
+}
+
+public void huyVe(int veId) {
+    String sql = "update ve set trangthai = 0 where ve_id = ? and trangthai = 1";
+
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
+
+        ps.setInt(1, veId);
+        int n = ps.executeUpdate();
+
+        if (n == 0) {
+            throw new RuntimeException("Vé không tồn tại hoặc đã hủy.");
+        }
+
+    } catch (SQLException e) {
+        throw new RuntimeException("ve huyVe failed", e);
+    }
+}
 }

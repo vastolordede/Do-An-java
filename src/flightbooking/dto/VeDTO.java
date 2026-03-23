@@ -14,7 +14,16 @@ public class VeDTO {
     private Integer trangThai;
     private LocalDateTime thoiDiemTao;
     private Integer taiKhoanKhachHangId;
-private String emailKhachHang;
+    private String emailKhachHang;
+    private String tenNhanVien;
+
+    // ===== field phục vụ màn quản lý vé =====
+    private String hoTenHanhKhach;
+    private String soGiayTo;
+    private String tenGhe;
+    private String tenHangGhe;
+    private LocalDateTime ngayTaoHoaDon;
+    private BigDecimal tongTienHoaDon;
 
     public VeDTO() {
     }
@@ -90,18 +99,84 @@ private String emailKhachHang;
     public void setThoiDiemTao(LocalDateTime thoiDiemTao) {
         this.thoiDiemTao = thoiDiemTao;
     }
-    private String tenNhanVien;
 
-public String getTenNhanVien() {
-    return tenNhanVien;
-}
+    public String getTenNhanVien() {
+        return tenNhanVien;
+    }
 
-public void setTenNhanVien(String tenNhanVien) {
-    this.tenNhanVien = tenNhanVien;
-}
-public Integer getTaiKhoanKhachHangId() { return taiKhoanKhachHangId; }
-public void setTaiKhoanKhachHangId(Integer id) { this.taiKhoanKhachHangId = id; }
+    public void setTenNhanVien(String tenNhanVien) {
+        this.tenNhanVien = tenNhanVien;
+    }
 
-public String getEmailKhachHang() { return emailKhachHang; }
-public void setEmailKhachHang(String s) { this.emailKhachHang = s; }
+    public Integer getTaiKhoanKhachHangId() {
+        return taiKhoanKhachHangId;
+    }
+
+    public void setTaiKhoanKhachHangId(Integer id) {
+        this.taiKhoanKhachHangId = id;
+    }
+
+    public String getEmailKhachHang() {
+        return emailKhachHang;
+    }
+
+    public void setEmailKhachHang(String s) {
+        this.emailKhachHang = s;
+    }
+
+    public String getHoTenHanhKhach() {
+        return hoTenHanhKhach;
+    }
+
+    public void setHoTenHanhKhach(String hoTenHanhKhach) {
+        this.hoTenHanhKhach = hoTenHanhKhach;
+    }
+
+    public String getSoGiayTo() {
+        return soGiayTo;
+    }
+
+    public void setSoGiayTo(String soGiayTo) {
+        this.soGiayTo = soGiayTo;
+    }
+
+    public String getTenGhe() {
+        return tenGhe;
+    }
+
+    public void setTenGhe(String tenGhe) {
+        this.tenGhe = tenGhe;
+    }
+
+    public String getTenHangGhe() {
+        return tenHangGhe;
+    }
+
+    public void setTenHangGhe(String tenHangGhe) {
+        this.tenHangGhe = tenHangGhe;
+    }
+
+    public LocalDateTime getNgayTaoHoaDon() {
+        return ngayTaoHoaDon;
+    }
+
+    public void setNgayTaoHoaDon(LocalDateTime ngayTaoHoaDon) {
+        this.ngayTaoHoaDon = ngayTaoHoaDon;
+    }
+
+    public BigDecimal getTongTienHoaDon() {
+        return tongTienHoaDon;
+    }
+
+    public void setTongTienHoaDon(BigDecimal tongTienHoaDon) {
+        this.tongTienHoaDon = tongTienHoaDon;
+    }
+
+    public boolean isDaHuy() {
+        return trangThai != null && trangThai == 0;
+    }
+
+    public String getTrangThaiText() {
+        return isDaHuy() ? "Đã hủy" : "Đang hiệu lực";
+    }
 }

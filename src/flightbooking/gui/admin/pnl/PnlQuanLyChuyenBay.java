@@ -18,7 +18,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 import java.util.List;
 
 public class PnlQuanLyChuyenBay extends JPanel {
@@ -67,7 +67,7 @@ private final HangHangKhongBUS hangBUS = new HangHangKhongBUS();
 private final JSpinner spGioDen = new JSpinner(new SpinnerDateModel());
     private final JComboBox<String> cbTrangThai = new JComboBox<>(new String[]{"1 - Đang mở", "0 - Hủy/Đóng"});
 
-    private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    
 
     public PnlQuanLyChuyenBay() {
         setLayout(new BorderLayout(10, 10));
@@ -327,21 +327,7 @@ c.setGioDen(gd);
         reload();
     }
 
-    private int parseInt(String s, String fieldName) {
-        try { return Integer.parseInt(s.trim()); }
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Trường " + fieldName + " phải là số.");
-            throw e;
-        }
-    }
-
-    private LocalDateTime parseDate(String s, String fieldName) {
-        try { return LocalDateTime.parse(s, fmt); }
-        catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Sai định dạng " + fieldName + ". Ví dụ: 2026-02-05 14:30");
-            throw e;
-        }
-    }
+    
 
     private static class Item {
         final int id; final String text;

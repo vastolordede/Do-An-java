@@ -14,6 +14,7 @@ import flightbooking.util.ActionConstants;
 import flightbooking.util.AuthUtil;
 import flightbooking.util.Permission;
 import flightbooking.util.SessionContext;
+import flightbooking.gui.admin.pnl.PnlQuanLyVe;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,6 +67,7 @@ public class FrmQuanTri extends JFrame {
         PnlDatVeAdmin pnlDatVe = new PnlDatVeAdmin();
         PnlQuanLyNhanVien pnlNhanVien = new PnlQuanLyNhanVien();
         PnlNhomQuyen pnlNhomQuyen = new PnlNhomQuyen();
+        PnlQuanLyVe pnlQuanLyVe = new PnlQuanLyVe();
 
 // ✅ MỚI - có log để biết lỗi ở panel nào
 try {
@@ -85,6 +87,8 @@ try {
     System.out.println("✅ NhanVien OK");
     pnlNhomQuyen.applyPermissions(actions);
     System.out.println("✅ NhomQuyen OK");
+    pnlQuanLyVe.applyPermissions(actions);
+System.out.println("✅ QuanLyVe OK");
 } catch (Exception ex) {
     ex.printStackTrace();
     JOptionPane.showMessageDialog(null, "Lỗi tại panel:\n" + ex.toString());
@@ -97,6 +101,7 @@ try {
         nav.register("CHUYEN_BAY", pnlChuyenBay);
         nav.register("HANG_HANG_KHONG", pnlHHK);
         nav.register("DAT_VE_ADMIN", pnlDatVe);
+        nav.register("QUAN_LY_VE", pnlQuanLyVe);
         nav.register("NHAN_VIEN", pnlNhanVien);
         nav.register("NHOM_QUYEN", pnlNhomQuyen);
 
@@ -111,7 +116,8 @@ try {
             nav.show("CHUYEN_BAY");
         } else if (AuthUtil.hasPermission(Permission.DAT_VE_ADMIN)) {
             nav.show("DAT_VE_ADMIN");
-        } else if (AuthUtil.hasPermission(Permission.HANG_HANG_KHONG)) {
+        }else if (AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
+    nav.show("QUAN_LY_VE");} else if (AuthUtil.hasPermission(Permission.HANG_HANG_KHONG)) {
             nav.show("HANG_HANG_KHONG");
         } else if (AuthUtil.hasPermission(Permission.MAY_BAY)) {
             nav.show("MAY_BAY");
@@ -160,12 +166,13 @@ setContentPane(root);
         JButton btnChuyenBay = new JButton("Quản lý Chuyến bay");
         JButton btnHHK       = new JButton("Quản lý Hãng hàng không");
         JButton btnDatVe     = new JButton("Đặt vé (quầy)");
+        JButton btnQuanLyVe = new JButton("Quản lý vé");
         JButton btnNhanVien  = new JButton("Quản lý nhân viên");
         JButton btnNhomQuyen = new JButton("Quản lý nhóm quyền");
 
         JButton[] buttons = {
             btnSanBay, btnTuyenBay, btnChuyenBay,
-            btnDatVe, btnHHK, btnMayBay, btnNhanVien, btnNhomQuyen
+            btnDatVe, btnQuanLyVe, btnHHK, btnMayBay, btnNhanVien, btnNhomQuyen
         };
 
         for (JButton b : buttons) {
@@ -184,6 +191,10 @@ setContentPane(root);
             p.add(btnTuyenBay);
             p.add(Box.createVerticalStrut(8));
         }
+        if (isAdmin || AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
+    p.add(btnQuanLyVe);
+    p.add(Box.createVerticalStrut(8));
+}
         if (isAdmin || AuthUtil.hasPermission(Permission.CHUYEN_BAY)) {
             p.add(btnChuyenBay);
             p.add(Box.createVerticalStrut(8));
@@ -215,6 +226,7 @@ setContentPane(root);
         btnChuyenBay.addActionListener(e -> nav.show("CHUYEN_BAY"));
         btnHHK.addActionListener(e       -> nav.show("HANG_HANG_KHONG"));
         btnDatVe.addActionListener(e     -> nav.show("DAT_VE_ADMIN"));
+        btnQuanLyVe.addActionListener(e -> nav.show("QUAN_LY_VE"));
         btnNhanVien.addActionListener(e  -> nav.show("NHAN_VIEN"));
         btnNhomQuyen.addActionListener(e -> nav.show("NHOM_QUYEN"));
 
