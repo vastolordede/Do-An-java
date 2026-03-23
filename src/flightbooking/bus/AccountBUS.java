@@ -65,18 +65,31 @@ public class AccountBUS {
     
     
     public String registerAccount(AccountDTO account, String confirmPass) {
-    // 1. Kiểm tra mật khẩu nhập lại
+
+    // 1. Nếu chưa nhập mật khẩu → dùng mặc định
+    if (account.getMatKhauMaHoa() == null || account.getMatKhauMaHoa().isEmpty()) {
+        account.setMatKhauMaHoa("123456");
+        confirmPass = "123456";
+    }
+
+    // 2. Check confirm
     if (!account.getMatKhauMaHoa().equals(confirmPass)) {
         return "Mật khẩu xác nhận không khớp!";
     }
-    
-    // 2. Kiểm tra tên đăng nhập đã tồn tại trong DB chưa
+
+    // 3. Check username tồn tại
     if (accountDao.getAccountByUsername(account.getTenDangNhap()) != null) {
         return "Tên đăng nhập này đã tồn tại, vui lòng chọn tên khác!";
     }
-    
-    // 3. Gọi DAO để lưu
+
+    // 🔥 4. HASH TRƯỚC KHI LƯU
+    account.setMatKhauMaHoa(
+        flightbooking.util.PasswordUtil.hash(account.getMatKhauMaHoa())
+    );
+
+    // 5. Lưu DB
     boolean success = accountDao.insertAccount(account);
+
     return success ? null : "Lỗi hệ thống: Không thể tạo tài khoản lúc này.";
 }
 public String changePassword(int taiKhoanId, String oldPass, String newPass) {
