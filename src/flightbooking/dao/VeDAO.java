@@ -238,7 +238,14 @@ public List<VeDTO> searchForQuanLyVe(
 }
 
 public void huyVe(int veId) {
-    String sql = "update ve set trangthai = 0 where ve_id = ? and trangthai = 1";
+    String sql =
+        "update ve v " +
+        "set trangthai = 0 " +
+        "from chuyenbay cb " +
+        "where v.chuyenbay_id = cb.chuyenbay_id " +
+        "  and v.ve_id = ? " +
+        "  and v.trangthai = 1 " +
+        "  and cb.giokhoihanh > CURRENT_TIMESTAMP";
 
     try (Connection c = getConnection();
          PreparedStatement ps = c.prepareStatement(sql)) {
@@ -247,7 +254,7 @@ public void huyVe(int veId) {
         int n = ps.executeUpdate();
 
         if (n == 0) {
-            throw new RuntimeException("Vé không tồn tại hoặc đã hủy.");
+            throw new RuntimeException("Không thể hủy vé vì vé không tồn tại, đã hủy, hoặc chuyến bay đã qua giờ khởi hành.");
         }
 
     } catch (SQLException e) {
