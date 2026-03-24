@@ -237,7 +237,7 @@ public class PnlNhomQuyen extends JPanel {
             if (panelCon != null) {
 
                 panelCon.setVisible(has);
-List<Integer> actionIds = new NhomQuyenDAO().getActionByQuyen(qid);
+List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
                 for (Component c : panelCon.getComponents()) {
 
                     if (c instanceof JCheckBox) {
@@ -266,40 +266,65 @@ List<Integer> actionIds = new NhomQuyenDAO().getActionByQuyen(qid);
         return list;
     }
 
-    
+    private Map<Integer, List<Integer>> getSelectedActions() {
+    Map<Integer, List<Integer>> result = new HashMap<>();
+
+    for (JCheckBox cbCha : checkBoxes) {
+        int qid = (Integer) cbCha.getClientProperty("id");
+
+        if (!cbCha.isSelected()) continue;
+
+        JPanel panelCon = mapPanelCon.get(qid);
+        List<Integer> actionIds = new ArrayList<>();
+
+        if (panelCon != null) {
+            for (Component c : panelCon.getComponents()) {
+                if (c instanceof JCheckBox) {
+                    JCheckBox cbCon = (JCheckBox) c;
+
+                    if (cbCon.isSelected()) {
+                        Integer aid = (Integer) cbCon.getClientProperty("id");
+
+                        if (aid != null) {
+                            actionIds.add(aid);
+                        }
+                    }
+                }
+            }
+        }
+
+        result.put(qid, actionIds);
+    }
+
+    return result;
+}
 
     private void save() {
-        try {
-            bus.createNhomQuyen(txtTen.getText(), getSelected());
-            loadTable();
-            clearForm();
-            JOptionPane.showMessageDialog(this, "Tạo thành công!");
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
-        }
+    try {
+        bus.createNhomQuyen(txtTen.getText(), getSelected(), getSelectedActions());
+        loadTable();
+        clearForm();
+        JOptionPane.showMessageDialog(this, "Tạo thành công!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
     }
+}
 
     private void update() {
 
-        int row = tbl.getSelectedRow();
-        if (row < 0) return;
+    int row = tbl.getSelectedRow();
+    if (row < 0) return;
 
-        int id = (int) model.getValueAt(row, 0);
+    int id = (int) model.getValueAt(row, 0);
 
-        try {
-            bus.updateNhomQuyen(id, txtTen.getText(), getSelected());
-
-            // 🔥 lưu action
-            
-
-            loadTable();
-
-            JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
-        }
+    try {
+        bus.updateNhomQuyen(id, txtTen.getText(), getSelected(), getSelectedActions());
+        loadTable();
+        JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
     }
+}
 
     private void delete() {
 

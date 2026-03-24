@@ -194,4 +194,60 @@ public class NhomQuyenDAO {
 
         return list;
     }
+    public void insertActions(int nhomId, int quyenId, List<Integer> actionIds) {
+    String sql = "INSERT INTO nhomquyen_action (nhomquyen_id, quyen_id, action_id) VALUES (?, ?, ?)";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        for (int actionId : actionIds) {
+            ps.setInt(1, nhomId);
+            ps.setInt(2, quyenId);
+            ps.setInt(3, actionId);
+            ps.addBatch();
+        }
+
+        ps.executeBatch();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException("Lỗi lưu action cho nhóm quyền");
+    }
+}
+public void deleteAllActions(int nhomId) {
+    String sql = "DELETE FROM nhomquyen_action WHERE nhomquyen_id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, nhomId);
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+public List<Integer> getActionByNhomAndQuyen(int nhomId, int quyenId) {
+    List<Integer> list = new ArrayList<>();
+
+    String sql = "SELECT action_id FROM nhomquyen_action WHERE nhomquyen_id = ? AND quyen_id = ?";
+
+    try (Connection conn = DBConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, nhomId);
+        ps.setInt(2, quyenId);
+
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            list.add(rs.getInt("action_id"));
+        }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return list;
+}
+
 }

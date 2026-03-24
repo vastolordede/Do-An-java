@@ -501,7 +501,10 @@ public void applyPermissions(List<Integer> actionIds) {
     btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
     btnGiaHang.setVisible(actionIds.contains(ActionConstants.GIA_HANG_GHE));
     btnSeatMap.setVisible(actionIds.contains(ActionConstants.SO_DO_GHE));
-    revalidate(); repaint();
+    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
+    revalidate();
+    repaint();
 }
 private void loadHangHKToCombo() {
     cbHangHK.removeAllItems();

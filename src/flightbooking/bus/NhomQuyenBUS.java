@@ -2,6 +2,7 @@ package flightbooking.bus;
 
 import flightbooking.dao.NhomQuyenDAO;
 import java.util.List;
+import java.util.Map;
 
 public class NhomQuyenBUS {
 
@@ -11,8 +12,7 @@ public class NhomQuyenBUS {
         return dao.hasPermission(nhomId, quyenId);
     }
 
-    public void createNhomQuyen(String ten, List<Integer> quyenIds) {
-
+    public void createNhomQuyen(String ten, List<Integer> quyenIds, Map<Integer, List<Integer>> actionMap) {
         if (ten == null || ten.trim().isEmpty()) {
             throw new RuntimeException("Tên nhóm không được rỗng");
         }
@@ -24,20 +24,31 @@ public class NhomQuyenBUS {
         }
 
         dao.insertQuyen(id, quyenIds);
+
+        for (Map.Entry<Integer, List<Integer>> entry : actionMap.entrySet()) {
+            dao.insertActions(id, entry.getKey(), entry.getValue());
+        }
     }
 
-    public void updateNhomQuyen(int id, String ten, List<Integer> quyenIds) {
-
-        if (ten == null || ten.trim().isEmpty())
+    public void updateNhomQuyen(int id, String ten, List<Integer> quyenIds, Map<Integer, List<Integer>> actionMap) {
+        if (ten == null || ten.trim().isEmpty()) {
             throw new RuntimeException("Tên không hợp lệ");
+        }
 
         dao.updateNhomQuyen(id, ten);
 
+        dao.deleteAllActions(id);
         dao.deleteAllQuyen(id);
+
         dao.insertQuyen(id, quyenIds);
+
+        for (Map.Entry<Integer, List<Integer>> entry : actionMap.entrySet()) {
+            dao.insertActions(id, entry.getKey(), entry.getValue());
+        }
     }
 
     public void deleteNhomQuyen(int id) {
+        dao.deleteAllActions(id);
         dao.deleteAllQuyen(id);
         dao.deleteNhomQuyen(id);
     }

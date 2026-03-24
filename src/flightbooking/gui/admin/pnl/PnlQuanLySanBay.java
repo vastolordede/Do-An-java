@@ -134,6 +134,8 @@ return wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport)
     btnAdd.setVisible(actionIds.contains(ActionConstants.THEM));
     btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
     btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
+    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
     revalidate();
     repaint();
 }

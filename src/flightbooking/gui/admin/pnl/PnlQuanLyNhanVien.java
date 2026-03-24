@@ -632,6 +632,9 @@ public void applyPermissions(List<Integer> actionIds) {
     btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
     btnClear.setVisible(actionIds.contains(ActionConstants.LAM_MOI));
     btnPhanQuyen.setVisible(actionIds.contains(ActionConstants.PHAN_QUYEN));
-    revalidate(); repaint();
+    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
+    revalidate();
+    repaint();
 }
 }

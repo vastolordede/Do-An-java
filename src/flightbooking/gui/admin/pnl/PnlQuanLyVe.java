@@ -239,11 +239,11 @@ public class PnlQuanLyVe extends JPanel {
     }
 
     public void applyPermissions(List<Integer> actionIds) {
-        btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
-        btnHuyVe.setVisible(actionIds.contains(ActionConstants.HUY_VE));
-        revalidate();
-        repaint();
-    }
+    btnHuyVe.setVisible(actionIds.contains(ActionConstants.HUY_VE));
+    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+    revalidate();
+    repaint();
+}
 
     private GridBagConstraints makeLc() {
         GridBagConstraints lc = new GridBagConstraints();

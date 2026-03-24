@@ -355,7 +355,10 @@ btnImport.addActionListener(e -> {
     btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
     btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
     btnGen.setVisible(actionIds.contains(ActionConstants.TAO_GHE));
-    revalidate(); repaint();
+    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
+    revalidate();
+    repaint();
 }
 
 private GridBagConstraints makeLc() {

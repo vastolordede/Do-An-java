@@ -326,8 +326,11 @@ int gheId = gheIdDaChon;
 
     
     public void applyPermissions(List<Integer> actionIds) {
+    btnTaoVe.setVisible(actionIds.contains(ActionConstants.TAO_VE));
     btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
-    revalidate(); repaint();
+    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
+    revalidate();
+    repaint();
 }
 
 private GridBagConstraints makeLc() {

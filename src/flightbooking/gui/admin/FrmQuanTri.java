@@ -44,28 +44,7 @@ public class FrmQuanTri extends JFrame {
         // Admin thì có tất cả quyền
         List<Integer> actions;
 
-if (isAdmin) {
-    actions = List.of(
-        ActionConstants.THEM,
-        ActionConstants.XOA,
-        ActionConstants.SUA,
-        ActionConstants.TAO_VE,
-        ActionConstants.GIA_HANG_GHE,
-        ActionConstants.SO_DO_GHE,
-        ActionConstants.TAO_GHE,
-        ActionConstants.LAM_MOI,
-        ActionConstants.PHAN_QUYEN
-    );
-} else {
 
-    actions = new ArrayList<>();
-
-    List<Integer> perms = new NhomQuyenDAO().getPermissionsByNhom(nhomId);
-
-    for (int quyenId : perms) {
-        actions.addAll(new NhomQuyenDAO().getActionByQuyen(quyenId));
-    }
-}
 
         // Tạo các panel và apply quyền
         PnlQuanLyMayBay pnlMayBay = new PnlQuanLyMayBay();
@@ -83,23 +62,31 @@ pnlQuanLyVe.setPnlDatVeAdmin(pnlDatVe);
 
 // ✅ MỚI - có log để biết lỗi ở panel nào
 try {
-    pnlMayBay.applyPermissions(actions);
-    System.out.println("✅ MayBay OK");
-    pnlSanBay.applyPermissions(actions);
-    System.out.println("✅ SanBay OK");
-    pnlTuyenBay.applyPermissions(actions);
-    System.out.println("✅ TuyenBay OK");
-    pnlChuyenBay.applyPermissions(actions);
-    System.out.println("✅ ChuyenBay OK");
-    pnlHHK.applyPermissions(actions);
-    System.out.println("✅ HHK OK");
-    pnlDatVe.applyPermissions(actions);
-    System.out.println("✅ DatVe OK");
-    pnlNhanVien.applyPermissions(actions);
-    System.out.println("✅ NhanVien OK");
-    pnlNhomQuyen.applyPermissions(actions);
-    System.out.println("✅ NhomQuyen OK");
-    pnlQuanLyVe.applyPermissions(actions);
+   pnlMayBay.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.MAY_BAY));
+System.out.println("✅ MayBay OK");
+
+pnlSanBay.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.SAN_BAY));
+System.out.println("✅ SanBay OK");
+
+pnlTuyenBay.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.TUYEN_BAY));
+System.out.println("✅ TuyenBay OK");
+
+pnlChuyenBay.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.CHUYEN_BAY));
+System.out.println("✅ ChuyenBay OK");
+
+pnlHHK.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.HANG_HANG_KHONG));
+System.out.println("✅ HHK OK");
+
+pnlDatVe.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.DAT_VE_ADMIN));
+System.out.println("✅ DatVe OK");
+
+pnlNhanVien.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.NHAN_VIEN));
+System.out.println("✅ NhanVien OK");
+
+pnlNhomQuyen.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.NHOM_QUYEN));
+System.out.println("✅ NhomQuyen OK");
+
+pnlQuanLyVe.applyPermissions(getActionsByPermission(nhomId, isAdmin, Permission.QUAN_LY_VE));
 System.out.println("✅ QuanLyVe OK");
 } catch (Exception ex) {
     ex.printStackTrace();
@@ -307,5 +294,86 @@ header.add(lblHello, BorderLayout.WEST);
 header.add(right, BorderLayout.EAST);
 
     return header;
+}
+private List<Integer> getActionsByPermission(int nhomId, boolean isAdmin, int quyenId) {
+    if (isAdmin) {
+        switch (quyenId) {
+            case Permission.SAN_BAY:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.TUYEN_BAY:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.CHUYEN_BAY:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.GIA_HANG_GHE,
+                        ActionConstants.SO_DO_GHE,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.DAT_VE_ADMIN:
+                return java.util.Arrays.asList(
+                        ActionConstants.TAO_VE,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.MAY_BAY:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.TAO_GHE,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.HANG_HANG_KHONG:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.NHAN_VIEN:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA,
+                        ActionConstants.LAM_MOI,
+                        ActionConstants.PHAN_QUYEN,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            case Permission.NHOM_QUYEN:
+                return java.util.Arrays.asList(
+                        ActionConstants.THEM,
+                        ActionConstants.SUA,
+                        ActionConstants.XOA
+                );
+            case Permission.QUAN_LY_VE:
+                return java.util.Arrays.asList(
+                        ActionConstants.HUY_VE,
+                        ActionConstants.XUAT_EXCEL,
+                        ActionConstants.NHAP_EXCEL
+                );
+            default:
+                return new ArrayList<>();
+        }
+    }
+
+    return new NhomQuyenDAO().getActionByNhomAndQuyen(nhomId, quyenId);
 }
 }
