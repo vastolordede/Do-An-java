@@ -10,6 +10,7 @@ public class ThongTinVeDTO {
     private String sanBayDen;
     private LocalDateTime gioKhoiHanh;
     private LocalDateTime gioDen;
+    private Integer trangThai;
 
     private String tenMayBay;
     private String kieuMayBay;
@@ -60,4 +61,19 @@ private BigDecimal gia;
 
 public BigDecimal getGia() { return gia; }
 public void setGia(BigDecimal gia) { this.gia = gia; }
+public Integer getTrangThai() {
+    return trangThai;
+}
+
+public void setTrangThai(Integer trangThai) {
+    this.trangThai = trangThai;
+}
+
+public boolean isDaHuy() {
+    return trangThai != null && trangThai == 0;
+}
+
+public String getTrangThaiText() {
+    return isDaHuy() ? "Đã hủy" : "Đang hiệu lực";
+}
 }

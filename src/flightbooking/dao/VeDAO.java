@@ -151,7 +151,7 @@ public List<VeDTO> searchForQuanLyVe(
         "from ve v " +
         "left join hanhkhach hk on hk.hanhkhach_id = v.hanhkhach_id " +
         "left join ghe g on g.ghe_id = v.ghe_id " +
-        "left join hangghe h on h.hangghe_id = g.hangghe_id " +
+        "left join hangghemaybay h on h.hangghe_id = g.hangghe_id " +
         "left join taikhoankhachhang kh on kh.taikhoankhachhang_id = v.taikhoankhachhang_id " +
         "left join taikhoannhanvien tknv on tknv.taikhoannhanvien_id = v.taikhoannhanvien_id " +
         "left join nhanvien nv on nv.nhanvien_id = tknv.nhanvien_id " +
@@ -254,4 +254,5 @@ public void huyVe(int veId) {
         throw new RuntimeException("ve huyVe failed", e);
     }
 }
+
 }

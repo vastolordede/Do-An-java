@@ -120,7 +120,7 @@ public List<ThongTinVeDTO> getByNhanVien(int taiKhoanNhanVienId) {
     List<ThongTinVeDTO> list = new ArrayList<>();
 
     String sql =
-    "SELECT v.chuyenbay_id, v.ghe_id, " +
+    "SELECT v.chuyenbay_id, v.ghe_id, v.trangthai, " +
     "hk.hoten, hk.sogiayto, " +
     "sbd.tensanbay AS sanbay_di, sbdn.tensanbay AS sanbay_den, " +
     "cb.giokhoihanh, " +
@@ -149,6 +149,8 @@ public List<ThongTinVeDTO> getByNhanVien(int taiKhoanNhanVienId) {
 
                 t.setChuyenBayId(rs.getInt("chuyenbay_id"));
                 t.setGheId(rs.getInt("ghe_id"));
+
+                t.setTrangThai((Integer) rs.getObject("trangthai")); // 🔥 thêm
 
                 t.setHoTen(rs.getString("hoten"));
                 t.setSoGiayTo(rs.getString("sogiayto"));

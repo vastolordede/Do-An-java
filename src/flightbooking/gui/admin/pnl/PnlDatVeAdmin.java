@@ -13,6 +13,7 @@ import flightbooking.util.ExcelImporter;
 import flightbooking.util.SessionContext;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.*;
@@ -42,6 +43,7 @@ private DefaultTableModel modelVe;
     private final JTextField txtSoGiayTo = new JTextField();
 
     private final JComboBox<String> cbPay = new JComboBox<>(new String[]{"cash", "card"});
+    private List<ThongTinVeDTO> currentVeData = new ArrayList<>();
 
     public PnlDatVeAdmin() {
         setLayout(new BorderLayout(10, 10));
@@ -54,14 +56,54 @@ private DefaultTableModel modelVe;
     }
 
     private JComponent buildTableVe() {
-
     modelVe = new DefaultTableModel(
         new Object[]{"Chuyến", "Hành khách", "Giấy tờ", "Tuyến", "Ghế", "Hạng", "Giá"}, 0
     ) {
-        @Override public boolean isCellEditable(int r, int c) { return false; }
+        @Override
+        public boolean isCellEditable(int r, int c) {
+            return false;
+        }
     };
 
     tableVe = new JTable(modelVe);
+    tableVe.setRowHeight(28);
+    tableVe.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+    tableVe.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column
+        ) {
+            Component c = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column
+            );
+
+            if (row >= 0 && row < currentVeData.size()) {
+                ThongTinVeDTO t = currentVeData.get(row);
+
+                if (t.isDaHuy()) {
+                    if (isSelected) {
+                        c.setBackground(new Color(80, 80, 80));
+                        c.setForeground(Color.WHITE);
+                    } else {
+                        c.setBackground(new Color(45, 45, 45));
+                        c.setForeground(Color.WHITE);
+                    }
+                } else {
+                    if (isSelected) {
+                        c.setBackground(table.getSelectionBackground());
+                        c.setForeground(table.getSelectionForeground());
+                    } else {
+                        c.setBackground(Color.WHITE);
+                        c.setForeground(Color.BLACK);
+                    }
+                }
+            }
+
+            return c;
+        }
+    });
 
     loadVeNhanVien();
 
@@ -69,16 +111,17 @@ private DefaultTableModel modelVe;
 }
 
 private void loadVeNhanVien() {
-
     modelVe.setRowCount(0);
 
     Integer adminId = SessionContext.getAdminTaiKhoanId();
-    if (adminId == null || adminId == 0) return;
+    if (adminId == null || adminId == 0) {
+        currentVeData = new ArrayList<>();
+        return;
+    }
 
-    List<ThongTinVeDTO> list = thongTinVeBUS.getByNhanVien(adminId);
+    currentVeData = thongTinVeBUS.getByNhanVien(adminId);
 
-    for (ThongTinVeDTO t : list) {
-
+    for (ThongTinVeDTO t : currentVeData) {
         String tuyen = t.getSanBayDi() + " → " + t.getSanBayDen();
 
         modelVe.addRow(new Object[]{
@@ -325,5 +368,10 @@ private JPanel wrapWithActions(JPanel form, JButton... buttons) {
     wrap.add(form, BorderLayout.CENTER);
     wrap.add(actions, BorderLayout.SOUTH);
     return wrap;
+}
+public void reloadData() {
+    loadVeNhanVien();
+    revalidate();
+    repaint();
 }
 }

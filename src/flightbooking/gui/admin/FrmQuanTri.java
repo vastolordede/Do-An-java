@@ -78,6 +78,9 @@ if (isAdmin) {
         PnlNhomQuyen pnlNhomQuyen = new PnlNhomQuyen();
         PnlQuanLyVe pnlQuanLyVe = new PnlQuanLyVe();
 
+        // 🔥 CONNECT 2 PANEL
+pnlQuanLyVe.setPnlDatVeAdmin(pnlDatVe);
+
 // ✅ MỚI - có log để biết lỗi ở panel nào
 try {
     pnlMayBay.applyPermissions(actions);

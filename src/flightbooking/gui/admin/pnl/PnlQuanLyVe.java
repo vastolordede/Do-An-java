@@ -16,6 +16,7 @@ import java.util.List;
 public class PnlQuanLyVe extends JPanel {
 
     private final QuanLyVeBUS bus = new QuanLyVeBUS();
+    private PnlDatVeAdmin pnlDatVeAdmin;
 
     private final JTextField txtChuyenBayId = new JTextField();
     private final JTextField txtHoTen = new JTextField();
@@ -229,6 +230,9 @@ public class PnlQuanLyVe extends JPanel {
             bus.huyVe(v.getVeId());
             JOptionPane.showMessageDialog(this, "Hủy vé thành công.");
             loadData();
+            if (pnlDatVeAdmin != null) {
+    pnlDatVeAdmin.reloadData();
+}
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Hủy vé thất bại: " + ex.getMessage());
         }
@@ -236,6 +240,7 @@ public class PnlQuanLyVe extends JPanel {
 
     public void applyPermissions(List<Integer> actionIds) {
         btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+        btnHuyVe.setVisible(actionIds.contains(ActionConstants.HUY_VE));
         revalidate();
         repaint();
     }
@@ -269,4 +274,7 @@ public class PnlQuanLyVe extends JPanel {
                 BorderFactory.createEmptyBorder(3, 8, 3, 8)
         ));
     }
+    public void setPnlDatVeAdmin(PnlDatVeAdmin pnlDatVeAdmin) {
+    this.pnlDatVeAdmin = pnlDatVeAdmin;
+}
 }
