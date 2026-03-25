@@ -11,4 +11,5 @@ public class Permission {
     public static final int NHAN_VIEN = 7;
     public static final int NHOM_QUYEN = 8;
     public static final int QUAN_LY_VE = 9;
+    public static final int THONG_KE = 10;
 }

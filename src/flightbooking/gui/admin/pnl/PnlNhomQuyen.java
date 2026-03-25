@@ -45,6 +45,7 @@ public class PnlNhomQuyen extends JPanel {
         ACTION_MAP.put("quản lý máy bay", new String[]{"Thêm", "Sửa", "Xóa", "Tạo ghế", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý nhân viên", new String[]{"Thêm", "Sửa", "Xóa", "Phân quyền", "Xuất Excel", "Nhập Excel"});
         ACTION_MAP.put("quản lý nhóm quyền", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
+        ACTION_MAP.put("thống kê", new String[]{"Xuất Excel"});
     }
 
     private static final String[] DEFAULT_ACTIONS = {"Thêm", "Sửa", "Xóa"};
