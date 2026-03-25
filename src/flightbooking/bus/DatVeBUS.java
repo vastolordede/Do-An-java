@@ -90,7 +90,7 @@ public class DatVeBUS {
         int chuyenBayId,
         List<ThongTinHanhKhachVaGhe> items,
         String phuongThucThanhToan,
-    int diemSuDung
+        int diemSuDung
 ) {
     if (items == null || items.isEmpty()) {
         throw new RuntimeException("Danh sach hanh khach/ghe rong");
@@ -104,24 +104,22 @@ public class DatVeBUS {
         throw new RuntimeException("Chỉ được 1 trong 2: khách hàng hoặc nhân viên");
     }
 
-    // 🔥 CHỈ USER MỚI DÙNG ĐIỂM
-    
+    // Chỉ user mới dùng điểm
     if (taiKhoanKhachHangId != null) {
-    int diemHienTai = khachHangDAO.getDiem(taiKhoanKhachHangId);
+        int diemHienTai = khachHangDAO.getDiem(taiKhoanKhachHangId);
 
-    if (diemSuDung > diemHienTai) {
-        diemSuDung = diemHienTai;
+        if (diemSuDung > diemHienTai) {
+            diemSuDung = diemHienTai;
+        }
+
+        if (diemSuDung < 0) {
+            diemSuDung = 0;
+        }
+    } else {
+        diemSuDung = 0; // admin side không dùng điểm
     }
 
-    if (diemSuDung < 0) {
-        diemSuDung = 0;
-    }
-
-    System.out.println("Điểm hiện tại: " + diemHienTai);
-    System.out.println("Điểm sử dụng: " + diemSuDung);
-}
-
-    // kiểm tra ghế
+    // kiểm tra trùng ghế trong cùng request
     Set<Integer> unique = new HashSet<>();
     for (ThongTinHanhKhachVaGhe it : items) {
         if (!unique.add(it.getGheId())) {
@@ -129,6 +127,7 @@ public class DatVeBUS {
         }
     }
 
+    // kiểm tra ghế đã được đặt chưa
     Set<Integer> daDat = new HashSet<>(veDAO.findGheIdDaDat(chuyenBayId));
     for (ThongTinHanhKhachVaGhe it : items) {
         if (daDat.contains(it.getGheId())) {
@@ -136,7 +135,51 @@ public class DatVeBUS {
         }
     }
 
-    // tạo hóa đơn
+    // ===== TÍNH GIÁ GỐC TỪNG VÉ TRƯỚC =====
+    List<BigDecimal> dsGiaGoc = new ArrayList<>();
+    BigDecimal tongGoc = BigDecimal.ZERO;
+
+    for (ThongTinHanhKhachVaGhe it : items) {
+        BigDecimal giaGoc = tinhGiaGhe(chuyenBayId, it.getGheId());
+        if (giaGoc == null) giaGoc = BigDecimal.ZERO;
+
+        dsGiaGoc.add(giaGoc);
+        tongGoc = tongGoc.add(giaGoc);
+    }
+
+    // ===== TÍNH TỔNG GIẢM THEO ĐIỂM =====
+    BigDecimal tongGiam = BigDecimal.ZERO;
+    if (taiKhoanKhachHangId != null && diemSuDung > 0) {
+        tongGiam = BigDecimal.valueOf(diemSuDung).multiply(BigDecimal.TEN);
+
+        // không cho giảm vượt tổng tiền gốc
+        if (tongGiam.compareTo(tongGoc) > 0) {
+            tongGiam = tongGoc;
+        }
+    }
+
+    // ===== CHIA ĐỀU GIẢM GIÁ CHO TỪNG VÉ =====
+    List<BigDecimal> dsGiamMoiVe = new ArrayList<>();
+    int soVe = items.size();
+
+    if (soVe > 0) {
+        BigDecimal soVeBD = BigDecimal.valueOf(soVe);
+        BigDecimal giamCoBanMoiVe = tongGiam.divideToIntegralValue(soVeBD);
+        BigDecimal phanDu = tongGiam.remainder(soVeBD); // phần dư tính theo VND
+
+        for (int i = 0; i < soVe; i++) {
+            BigDecimal giamVe = giamCoBanMoiVe;
+
+            // cộng 1 VND cho các vé đầu nếu còn dư
+            if (BigDecimal.valueOf(i).compareTo(phanDu) < 0) {
+                giamVe = giamVe.add(BigDecimal.ONE);
+            }
+
+            dsGiamMoiVe.add(giamVe);
+        }
+    }
+
+    // ===== TẠO HÓA ĐƠN =====
     HoaDonDTO hd = new HoaDonDTO();
     hd.setTaiKhoanKhachHangId(taiKhoanKhachHangId);
     hd.setTaiKhoanNhanVienId(taiKhoanNhanVienId);
@@ -147,15 +190,19 @@ public class DatVeBUS {
     BigDecimal tong = BigDecimal.ZERO;
     List<Integer> veIds = new ArrayList<>();
 
-    // ===== LOOP =====
-    for (ThongTinHanhKhachVaGhe it : items) {
+    // ===== INSERT TỪNG VÉ VỚI GIÁ ĐÃ CHIA GIẢM =====
+    for (int i = 0; i < items.size(); i++) {
+        ThongTinHanhKhachVaGhe it = items.get(i);
 
         int hanhKhachId = hanhKhachDAO.insert(it.getHanhKhach());
 
-        BigDecimal gia = tinhGiaGhe(chuyenBayId, it.getGheId());
-        System.out.println("Giá gốc: " + gia);
+        BigDecimal giaGoc = dsGiaGoc.get(i);
+        BigDecimal giamVe = dsGiamMoiVe.get(i);
 
-        
+        BigDecimal giaSauGiam = giaGoc.subtract(giamVe);
+        if (giaSauGiam.compareTo(BigDecimal.ZERO) < 0) {
+            giaSauGiam = BigDecimal.ZERO;
+        }
 
         VeDTO ve = new VeDTO();
         ve.setChuyenBayId(chuyenBayId);
@@ -163,7 +210,7 @@ public class DatVeBUS {
         ve.setHanhKhachId(hanhKhachId);
         ve.setTaiKhoanNhanVienId(taiKhoanNhanVienId);
         ve.setTaiKhoanKhachHangId(taiKhoanKhachHangId);
-        ve.setGiaChot(gia);
+        ve.setGiaChot(giaSauGiam);   // lưu giá sau khi đã phân bổ điểm
         ve.setThueChot(BigDecimal.ZERO);
         ve.setTrangThai(1);
 
@@ -175,29 +222,18 @@ public class DatVeBUS {
         hdv.setVeId(veId);
         hoaDonVeDAO.insert(hdv);
 
-        tong = tong.add(gia);
-        // 🔥 TRỪ ĐIỂM 1 LẦN DUY NHẤT
-
+        tong = tong.add(giaSauGiam);
     }
-// ✅ TRỪ ĐIỂM 1 LẦN
-if (taiKhoanKhachHangId != null && diemSuDung > 0) {
 
-    BigDecimal giam = BigDecimal.valueOf(diemSuDung * 10);
-    tong = tong.subtract(giam);
-
-    if (tong.compareTo(BigDecimal.ZERO) < 0) {
-        tong = BigDecimal.ZERO;
-    }
-}
-    // 🔥 TRỪ ĐIỂM (1 LẦN)
+    // ===== TRỪ ĐIỂM THẬT CỦA KHÁCH =====
     if (taiKhoanKhachHangId != null && diemSuDung > 0) {
         khachHangDAO.truDiem(taiKhoanKhachHangId, diemSuDung);
-        System.out.println("Đã trừ điểm: " + diemSuDung);
     }
 
+    // ===== CẬP NHẬT HÓA ĐƠN =====
     hoaDonDAO.updateTongTien(hoaDonId, tong);
 
-    // thanh toán
+    // ===== THANH TOÁN =====
     ThanhToanDTO tt = new ThanhToanDTO();
     tt.setHoaDonId(hoaDonId);
     tt.setSoTien(tong);
@@ -206,21 +242,18 @@ if (taiKhoanKhachHangId != null && diemSuDung > 0) {
 
     int thanhToanId = thanhToanDAO.insert(tt);
 
-    // 🔥 CỘNG ĐIỂM (SAU KHI THÀNH CÔNG)
+    // ===== CỘNG ĐIỂM SAU KHI ĐẶT THÀNH CÔNG =====
     if (taiKhoanKhachHangId != null) {
         int soDam = getSoDam(chuyenBayId);
-int diemCong = 0;
+        int diemCong = 0;
 
-for (ThongTinHanhKhachVaGhe it : items) {
-    GheDTO ghe = gheDAO.findById(it.getGheId());
-    double mul = getMultiplier(ghe.getHangGheId());
-
-    diemCong += (int) (soDam * mul);
-}
+        for (ThongTinHanhKhachVaGhe it : items) {
+            GheDTO ghe = gheDAO.findById(it.getGheId());
+            double mul = getMultiplier(ghe.getHangGheId());
+            diemCong += (int) (soDam * mul);
+        }
 
         khachHangDAO.congDiem(taiKhoanKhachHangId, diemCong);
-
-        System.out.println("Cộng điểm: " + diemCong);
     }
 
     KetQuaDatVe kq = new KetQuaDatVe();
