@@ -155,7 +155,7 @@ public class ThongKeDAO extends BaseDAO {
     sql.append("join chuyenbay cb on cb.chuyenbay_id = v.chuyenbay_id ");
     sql.append("join tuyenbay tb on tb.tuyenbay_id = cb.tuyenbay_id ");
     sql.append("join ghe g on g.ghe_id = v.ghe_id ");
-    sql.append("join hangghemaybay hgm on hgm.maybay_id = g.maybay_id and hgm.hangghe_id = g.hangghe_id ");
+    sql.append("join hangghemaybay hgm on hgm.maybay_id =g.maybay_id and hgm.hangghe_id = g.hangghe_id ");
     sql.append("where 1=1 ");
 
     List<Object> params = new ArrayList<>();

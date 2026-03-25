@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "UserMain",
+      "request": "launch",
+      "mainClass": "flightbooking.gui.user.UserMain",
+      "projectName": "FlightBooking - Local_7c73da2f"
+    },
+    {
+      "type": "java",
       "name": "AdminMain",
       "request": "launch",
       "mainClass": "flightbooking.gui.admin.AdminMain",

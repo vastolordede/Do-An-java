@@ -2,7 +2,7 @@ package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.ThongKeBUS;
 import flightbooking.dto.ThongKeChuyenBayDTO;
-import flightbooking.dto.ThongKeHangGheDTO;
+
 import flightbooking.dto.ThongKeTongQuanDTO;
 import flightbooking.util.ActionConstants;
 
@@ -39,15 +39,7 @@ public class PnlThongKe extends JPanel {
     };
     private final JTable tblChuyenBay = new JTable(modelChuyenBay);
 
-    private final DefaultTableModel modelHangGhe = new DefaultTableModel(
-            new Object[]{"Hạng ghế", "Số vé", "Doanh thu"}, 0
-    ) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
-    private final JTable tblHangGhe = new JTable(modelHangGhe);
+    
 
     private final JButton btnLoc = new JButton("Lọc");
     private final JButton btnLamMoi = new JButton("Làm mới");
@@ -67,6 +59,8 @@ public class PnlThongKe extends JPanel {
         btnLoc.addActionListener(e -> loadData());
         btnLamMoi.addActionListener(e -> lamMoi());
 
+       
+    
         loadData();
     }
 
@@ -112,12 +106,10 @@ public class PnlThongKe extends JPanel {
         JScrollPane spMain = new JScrollPane(tblChuyenBay);
         spMain.setBorder(BorderFactory.createTitledBorder("Doanh thu theo chuyến bay"));
 
-        JScrollPane spSmall = new JScrollPane(tblHangGhe);
-        spSmall.setBorder(BorderFactory.createTitledBorder("Doanh thu theo hạng ghế"));
-        spSmall.setPreferredSize(new Dimension(320, 0));
+        
 
         panel.add(spMain, BorderLayout.CENTER);
-        panel.add(spSmall, BorderLayout.EAST);
+        
 
         return panel;
     }
@@ -155,8 +147,7 @@ public class PnlThongKe extends JPanel {
             List<ThongKeChuyenBayDTO> dsChuyenBay = bus.getDoanhThuTheoChuyenBay(fromDate, toDate, null);
             fillTableChuyenBay(dsChuyenBay);
 
-            List<ThongKeHangGheDTO> dsHangGhe = bus.getDoanhThuTheoHangGhe(fromDate, toDate, null, null);
-            fillTableHangGhe(dsHangGhe);
+            
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu thống kê:\n" + e.getMessage());
@@ -196,19 +187,7 @@ public class PnlThongKe extends JPanel {
         }
     }
 
-    private void fillTableHangGhe(List<ThongKeHangGheDTO> list) {
-        modelHangGhe.setRowCount(0);
-
-        if (list == null) return;
-
-        for (ThongKeHangGheDTO x : list) {
-            modelHangGhe.addRow(new Object[]{
-                    x.getTenHangGhe(),
-                    x.getSoVe(),
-                    formatMoney(x.getDoanhThu())
-            });
-        }
-    }
+    
 
     private String formatMoney(BigDecimal value) {
         if (value == null) return "0";
