@@ -43,6 +43,7 @@ public class PnlQuanLyMayBay extends JPanel {
     private JButton btnGen;
     private JButton btnExport;
     private JButton btnImport;
+    private JButton btnReload;
 
     public PnlQuanLyMayBay() {
         setLayout(new BorderLayout(10, 10));
@@ -85,6 +86,9 @@ public class PnlQuanLyMayBay extends JPanel {
         btnGen = new JButton("Tạo ghế cho máy bay đang chọn");
         btnExport = new JButton("Xuất Excel");
         btnImport = new JButton("Nhập Excel");
+
+        btnReload = new JButton("Làm mới");
+btnReload.addActionListener(e -> reloadData());
 
         btnAdd.addActionListener(e -> addMayBay());
         btnUpdate.addActionListener(e -> updateMayBay());
@@ -491,4 +495,11 @@ private static class ConfigRow {
         wrap.add(actions, BorderLayout.SOUTH);
         return wrap;
     }
+    public void reloadData() {
+    reload();
+    clearForm();
+    table.clearSelection();
+    revalidate();
+    repaint();
+}
 }

@@ -26,6 +26,7 @@ public class PnlQuanLyHHK extends JPanel {
     private JButton btnUpdate;
     private JButton btnDelete;
     private JButton btnImport;
+    private JButton btnReload;
 
     public PnlQuanLyHHK() {
         setLayout(new BorderLayout(10, 10));
@@ -44,9 +45,11 @@ public class PnlQuanLyHHK extends JPanel {
     fc.gridx=1; fc.gridy=0; styleField(txtTen); form.add(txtTen, fc);
 
     btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
+    btnReload = new JButton("Làm mới");
     btnAdd.addActionListener(e -> add());
     btnUpdate.addActionListener(e -> update());
     btnDelete.addActionListener(e -> delete());
+    btnReload.addActionListener(e -> reloadData());
     btnExport = new JButton("Xuất Excel");
 btnExport.addActionListener(e -> {
     ExcelExporter.export(table, this);
@@ -56,7 +59,7 @@ btnExport.addActionListener(e -> {
     btnImport.addActionListener(e -> {
         ExcelImporter.importToTable(table, this);
     });
-    return wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+    return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void reload() {
@@ -150,5 +153,12 @@ private JPanel wrapWithActions(JPanel form, JButton... buttons) {
     wrap.add(form, BorderLayout.CENTER);
     wrap.add(actions, BorderLayout.SOUTH);
     return wrap;
+}
+public void reloadData() {
+    reload();
+    txtTen.setText("");
+    table.clearSelection();
+    revalidate();
+    repaint();
 }
 }

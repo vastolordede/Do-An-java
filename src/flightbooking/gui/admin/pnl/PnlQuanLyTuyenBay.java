@@ -23,6 +23,7 @@ public class PnlQuanLyTuyenBay extends JPanel {
     private JButton btnDelete;
     private JButton btnExport;
     private JButton btnImport;
+    private JButton btnReload;
 
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"ID", "Sân bay đi", "Sân bay đến", "Số dặm"}, 0
@@ -60,6 +61,8 @@ public class PnlQuanLyTuyenBay extends JPanel {
     fc.gridx=5; fc.gridy=0; form.add(spSoDam, fc);
 
     btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
+    btnReload = new JButton("Làm mới");
+btnReload.addActionListener(e -> reloadData());
     btnAdd.addActionListener(e -> add());
     btnUpdate.addActionListener(e -> update());
     btnDelete.addActionListener(e -> delete());
@@ -73,7 +76,7 @@ btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
 
-return wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void loadSanBayToCombo() {
@@ -236,5 +239,16 @@ private JPanel wrapWithActions(JPanel form, JButton... buttons) {
     wrap.add(form, BorderLayout.CENTER);
     wrap.add(actions, BorderLayout.SOUTH);
     return wrap;
+}
+public void reloadData() {
+    loadSanBayToCombo();
+    reload();
+    table.clearSelection();
+
+    if (cbSanBayDi.getItemCount() > 0) cbSanBayDi.setSelectedIndex(0);
+    if (cbSanBayDen.getItemCount() > 0) cbSanBayDen.setSelectedIndex(0);
+
+    revalidate();
+    repaint();
 }
 }

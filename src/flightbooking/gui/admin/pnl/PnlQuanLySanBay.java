@@ -29,6 +29,7 @@ public class PnlQuanLySanBay extends JPanel {
     private JButton btnDelete;
     private JButton btnExport;
     private JButton btnImport;
+    private JButton btnReload;
 
     public PnlQuanLySanBay() {
         setLayout(new BorderLayout(10,10));
@@ -55,6 +56,8 @@ public class PnlQuanLySanBay extends JPanel {
     fc.gridx=5; fc.gridy=0; styleField(txtQuocGia); form.add(txtQuocGia, fc);
 
     btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
+    btnReload = new JButton("Làm mới");
+btnReload.addActionListener(e -> reloadData());
     btnAdd.addActionListener(e -> add());
     btnUpdate.addActionListener(e -> update());
     btnDelete.addActionListener(e -> delete());
@@ -69,7 +72,7 @@ btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
 
-return wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void reload() {
@@ -178,5 +181,16 @@ private JPanel wrapWithActions(JPanel form, JButton... buttons) {
     wrap.add(form, BorderLayout.CENTER);
     wrap.add(actions, BorderLayout.SOUTH);
     return wrap;
+}
+public void reloadData() {
+    reload();
+    table.clearSelection();
+
+    txtTen.setText("");
+    txtThanhPho.setText("");
+    txtQuocGia.setText("");
+
+    revalidate();
+    repaint();
 }
 }

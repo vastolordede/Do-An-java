@@ -30,6 +30,7 @@ public class PnlDatVeAdmin extends JPanel {
     private JButton btnTaoVe;
     private JButton btnExport;
     private JButton btnImport;
+    private JButton btnReload;
 
     // ✅ combo thay vì nhập ID
     private final JComboBox<ChuyenItem> cbChuyen = new JComboBox<>();
@@ -38,6 +39,7 @@ private JLabel lblGheDaChon = new JLabel("Chưa chọn ghế");
 private Integer gheIdDaChon = null;
 private JTable tableVe;
 private DefaultTableModel modelVe;
+
 
     private final JTextField txtHoTen = new JTextField();
     private final JTextField txtSoGiayTo = new JTextField();
@@ -165,6 +167,9 @@ form.add(ghePanel, fc);
     lc.gridx=4; lc.gridy=1; form.add(makeLabel("Thanh toán"), lc);
     fc.gridx=5; fc.gridy=1; form.add(cbPay, fc);
 
+btnReload = new JButton("Làm mới");
+btnReload.addActionListener(e -> reloadData());
+
     btnExport = new JButton("Xuất Excel");
 btnExport.addActionListener(e -> {
     ExcelExporter.export(tableVe, this);
@@ -178,7 +183,7 @@ btnImport.addActionListener(e -> {
     btnTaoVe = new JButton("Tạo vé");
     btnTaoVe.addActionListener(e -> taoVe());
 
-    return wrapWithActions(form, btnTaoVe, btnExport, btnImport);
+    return wrapWithActions(form, btnReload, btnTaoVe, btnExport, btnImport);
 }
 
     private void loadChuyenBay() {
@@ -373,7 +378,10 @@ private JPanel wrapWithActions(JPanel form, JButton... buttons) {
     return wrap;
 }
 public void reloadData() {
+    loadChuyenBay();
     loadVeNhanVien();
+    clearForm();
+    tableVe.clearSelection();
     revalidate();
     repaint();
 }
