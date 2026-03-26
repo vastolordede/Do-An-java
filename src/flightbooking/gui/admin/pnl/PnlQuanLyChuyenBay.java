@@ -13,6 +13,7 @@ import flightbooking.dto.TuyenBayDTO;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
+import flightbooking.util.ValidationUtil;   
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -161,7 +162,9 @@ actions.add(btnImport);
         wrap.add(actions, BorderLayout.SOUTH);
         return wrap;
     }
-
+private void validateChuyenBayTime(LocalDateTime gkh, LocalDateTime gd) {
+    ValidationUtil.validateDateTimeOrder(gkh, gd, "Giờ khởi hành", "Giờ đến");
+}
     private void loadTuyenBayToCombo() {
         cbTuyenBay.removeAllItems();
         List<TuyenBayDTO> list = tuyenBayBUS.dsTuyenBay();
@@ -260,63 +263,95 @@ if (gd != null) {
     }
 
     private void add() {
-        Item tuyen = (Item) cbTuyenBay.getSelectedItem();
-        MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
-        if (tuyen == null || mb == null) return;
-
-        ChuyenBayDTO c = new ChuyenBayDTO();
-        c.setTuyenBayId(tuyen.id);
-        HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
-if (hhk == null) return;
-
-c.setHangHangKhongId(hhk.id);
-        c.setMayBayId(mb.id);
-
-        LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
-        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
-        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-        c.setGioKhoiHanh(gkh);
-        c.setGioDen(gd);
-        c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-
-        chuyenBayBUS.themChuyenBay(c);
-        reload();
+    Item tuyen = (Item) cbTuyenBay.getSelectedItem();
+    MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
+    if (tuyen == null || mb == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay và máy bay.");
+        return;
     }
+
+    ChuyenBayDTO c = new ChuyenBayDTO();
+    c.setTuyenBayId(tuyen.id);
+
+    HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
+    if (hhk == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn hãng hàng không.");
+        return;
+    }
+
+    c.setHangHangKhongId(hhk.id);
+    c.setMayBayId(mb.id);
+
+    LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
+            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+
+    LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
+            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+
+    try {
+        validateChuyenBayTime(gkh, gd);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
+        return;
+    }
+
+    c.setGioKhoiHanh(gkh);
+    c.setGioDen(gd);
+    c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+
+    chuyenBayBUS.themChuyenBay(c);
+    reload();
+}
 
     private void update() {
-        int row = table.getSelectedRow();
-        if (row < 0) return;
-
-        Item tuyen = (Item) cbTuyenBay.getSelectedItem();
-        MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
-        if (tuyen == null || mb == null) return;
-
-        int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
-
-        ChuyenBayDTO c = new ChuyenBayDTO();
-        c.setChuyenBayId(id);
-        c.setTuyenBayId(tuyen.id);
-        HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
-if (hhk == null) return;
-
-c.setHangHangKhongId(hhk.id);
-        c.setMayBayId(mb.id);
-
-        LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
-        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
-        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-        c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-
-        c.setGioKhoiHanh(gkh);   // 🔥 THIẾU
-c.setGioDen(gd);
-
-        chuyenBayBUS.capNhatChuyenBay(c);
-        reload();
+    int row = table.getSelectedRow();
+    if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Chọn 1 chuyến bay để sửa.");
+        return;
     }
+
+    Item tuyen = (Item) cbTuyenBay.getSelectedItem();
+    MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
+    if (tuyen == null || mb == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay và máy bay.");
+        return;
+    }
+
+    int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
+
+    ChuyenBayDTO c = new ChuyenBayDTO();
+    c.setChuyenBayId(id);
+    c.setTuyenBayId(tuyen.id);
+
+    HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
+    if (hhk == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn hãng hàng không.");
+        return;
+    }
+
+    c.setHangHangKhongId(hhk.id);
+    c.setMayBayId(mb.id);
+
+    LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
+            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+
+    LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
+            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+
+    try {
+        validateChuyenBayTime(gkh, gd);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
+        return;
+    }
+
+    c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+    c.setGioKhoiHanh(gkh);
+    c.setGioDen(gd);
+
+    chuyenBayBUS.capNhatChuyenBay(c);
+    reload();
+}
 
     private void delete() {
         int row = table.getSelectedRow();
@@ -408,47 +443,39 @@ c.setGioDen(gd);
     JButton btnSave = new JButton("Lưu Thiết Lập Giá");
 
     btnSave.addActionListener(e -> {
-        // QUAN TRỌNG: Ngừng việc gõ chữ trên ô JTable
-        if (tbl.isEditing()) {
-            tbl.getCellEditor().stopCellEditing();
+    if (tbl.isEditing()) {
+        tbl.getCellEditor().stopCellEditing();
+    }
+
+    try {
+        for (int i = 0; i < m.getRowCount(); i++) {
+            int hangGheId = Integer.parseInt(m.getValueAt(i, 0).toString());
+
+            String strGia = m.getValueAt(i, 2) == null ? "0" : m.getValueAt(i, 2).toString().trim();
+            if (strGia.isEmpty()) strGia = "0";
+
+            java.math.BigDecimal gia = new java.math.BigDecimal(strGia);
+            ValidationUtil.validateNonNegative(gia, "Giá cơ bản");
+
+            GiaHangChuyenBayDTO d = new GiaHangChuyenBayDTO();
+            d.setChuyenBayId(chuyenBayId);
+            d.setHangGheId(hangGheId);
+            d.setGiaCoBan(gia);
+
+            GiaHangChuyenBayDTO old = dao.findByChuyenBayAndHangGhe(chuyenBayId, hangGheId);
+            if (old == null) dao.insert(d);
+            else dao.update(d);
         }
 
-        try {
-            for (int i = 0; i < m.getRowCount(); i++) {
-                int hangGheId = Integer.parseInt(m.getValueAt(i, 0).toString());
-                
-                // Xử lý giá trị bị nhập rỗng hoặc null, và loại bỏ ký tự trắng
-                String strGia = m.getValueAt(i, 2) == null ? "0" : m.getValueAt(i, 2).toString().trim();
-                
+        JOptionPane.showMessageDialog(dialog, "Đã lưu giá thành công cho chuyến bay " + chuyenBayId);
+        dialog.dispose();
 
-                // Chống gõ linh tinh
-                if(strGia.isEmpty()) strGia = "0";
-                
-
-                java.math.BigDecimal gia = new java.math.BigDecimal(strGia);
-                
-
-                GiaHangChuyenBayDTO d = new GiaHangChuyenBayDTO();
-                d.setChuyenBayId(chuyenBayId);
-                d.setHangGheId(hangGheId);
-                d.setGiaCoBan(gia);
-                
-
-                // INSERT HAY UPDATE?
-                GiaHangChuyenBayDTO old = dao.findByChuyenBayAndHangGhe(chuyenBayId, hangGheId);
-                if (old == null) dao.insert(d);
-                else dao.update(d);
-            }
-
-            JOptionPane.showMessageDialog(dialog, "Đã lưu giá thành công cho chuyến bay " + chuyenBayId);
-            dialog.dispose();
-
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(dialog, "Lỗi nhập liệu: Giá và Thuế phải là số nguyên (Không chứa dấu phẩy hay chữ).", "Lỗi", JOptionPane.ERROR_MESSAGE);
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(dialog, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
-        }
-    });
+    } catch (NumberFormatException ex) {
+        JOptionPane.showMessageDialog(dialog, "Lỗi nhập liệu: Giá phải là số hợp lệ.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(dialog, "Lỗi hệ thống: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    }
+});
 
     dialog.add(new JScrollPane(tbl), BorderLayout.CENTER);
     dialog.add(btnSave, BorderLayout.SOUTH);

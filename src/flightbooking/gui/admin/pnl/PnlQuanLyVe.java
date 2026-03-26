@@ -12,6 +12,8 @@ import java.awt.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import flightbooking.util.ValidationUtil;
+import java.time.LocalDate;
 
 public class PnlQuanLyVe extends JPanel {
 
@@ -156,45 +158,53 @@ public class PnlQuanLyVe extends JPanel {
     }
 
     private void loadData() {
-        try {
-            Integer chuyenBayId = null;
-            String s = txtChuyenBayId.getText().trim();
-            if (!s.isEmpty()) {
-                chuyenBayId = Integer.parseInt(s);
-            }
-
-            String hoTen = txtHoTen.getText().trim();
-            String soGiayTo = txtSoGiayTo.getText().trim();
-
-            Integer trangThai = -1;
-            if (cbTrangThai.getSelectedIndex() == 1) trangThai = 1;
-            else if (cbTrangThai.getSelectedIndex() == 2) trangThai = 0;
-
-            currentData = bus.timKiem(chuyenBayId, hoTen, soGiayTo, trangThai);
-
-            model.setRowCount(0);
-            DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-
-            for (VeDTO v : currentData) {
-                model.addRow(new Object[]{
-                        v.getVeId(),
-                        v.getChuyenBayId(),
-                        v.getHoTenHanhKhach(),
-                        v.getSoGiayTo(),
-                        v.getTenGhe(),
-                        v.getTenHangGhe(),
-                        v.getGiaChot(),
-                        v.getEmailKhachHang(),
-                        v.getTenNhanVien(),
-                        v.getThoiDiemTao() != null ? v.getThoiDiemTao().format(f) : "",
-                        v.getTrangThaiText()
-                });
-            }
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi load vé: " + ex.getMessage());
+    try {
+        Integer chuyenBayId = null;
+        String s = txtChuyenBayId.getText().trim();
+        if (!s.isEmpty()) {
+            chuyenBayId = Integer.parseInt(s);
+            ValidationUtil.validatePositiveInt(chuyenBayId, "Chuyến bay ID");
         }
+
+        String hoTen = txtHoTen.getText().trim();
+        String soGiayTo = txtSoGiayTo.getText().trim();
+
+        if (!hoTen.isEmpty()) {
+            ValidationUtil.validateName(hoTen, "Họ tên");
+        }
+        if (!soGiayTo.isEmpty()) {
+            ValidationUtil.validateDocument(soGiayTo);
+        }
+
+        Integer trangThai = -1;
+        if (cbTrangThai.getSelectedIndex() == 1) trangThai = 1;
+        else if (cbTrangThai.getSelectedIndex() == 2) trangThai = 0;
+
+        currentData = bus.timKiem(chuyenBayId, hoTen, soGiayTo, trangThai);
+
+        model.setRowCount(0);
+        DateTimeFormatter f = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        for (VeDTO v : currentData) {
+            model.addRow(new Object[]{
+                    v.getVeId(),
+                    v.getChuyenBayId(),
+                    v.getHoTenHanhKhach(),
+                    v.getSoGiayTo(),
+                    v.getTenGhe(),
+                    v.getTenHangGhe(),
+                    v.getGiaChot(),
+                    v.getEmailKhachHang(),
+                    v.getTenNhanVien(),
+                    v.getThoiDiemTao() != null ? v.getThoiDiemTao().format(f) : "",
+                    v.getTrangThaiText()
+            });
+        }
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Lỗi load vé: " + ex.getMessage());
     }
+}
 
     private void lamMoi() {
         txtChuyenBayId.setText("");
@@ -205,38 +215,50 @@ public class PnlQuanLyVe extends JPanel {
     }
 
     private void huyVeSelected() {
-        int row = table.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Chọn 1 vé để hủy.");
-            return;
-        }
-
-        VeDTO v = currentData.get(row);
-        if (v.isDaHuy()) {
-            JOptionPane.showMessageDialog(this, "Vé này đã hủy rồi.");
-            return;
-        }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Bạn chắc chắn muốn hủy vé ID " + v.getVeId() + "?",
-                "Xác nhận hủy vé",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) return;
-
-        try {
-            bus.huyVe(v.getVeId());
-            JOptionPane.showMessageDialog(this, "Hủy vé thành công.");
-            loadData();
-            if (pnlDatVeAdmin != null) {
-    pnlDatVeAdmin.reloadData();
-}
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Hủy vé thất bại: " + ex.getMessage());
-        }
+    int row = table.getSelectedRow();
+    if (row < 0) {
+        JOptionPane.showMessageDialog(this, "Chọn 1 vé để hủy.");
+        return;
     }
+
+    VeDTO v = currentData.get(row);
+    if (v.isDaHuy()) {
+        JOptionPane.showMessageDialog(this, "Vé này đã hủy rồi.");
+        return;
+    }
+
+    try {
+        if (v.getThoiDiemTao() != null) {
+            LocalDate ngayTao = v.getThoiDiemTao().toLocalDate();
+            if (ngayTao.isBefore(LocalDate.now())) {
+                throw new RuntimeException("Không thể hủy vé cũ hơn ngày hôm nay.");
+            }
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
+        return;
+    }
+
+    int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Bạn chắc chắn muốn hủy vé ID " + v.getVeId() + "?",
+            "Xác nhận hủy vé",
+            JOptionPane.YES_NO_OPTION
+    );
+
+    if (confirm != JOptionPane.YES_OPTION) return;
+
+    try {
+        bus.huyVe(v.getVeId());
+        JOptionPane.showMessageDialog(this, "Hủy vé thành công.");
+        loadData();
+        if (pnlDatVeAdmin != null) {
+            pnlDatVeAdmin.reloadData();
+        }
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Hủy vé thất bại: " + ex.getMessage());
+    }
+}
 
     public void applyPermissions(List<Integer> actionIds) {
     btnHuyVe.setVisible(actionIds.contains(ActionConstants.HUY_VE));

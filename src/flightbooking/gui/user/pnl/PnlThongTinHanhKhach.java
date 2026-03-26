@@ -5,6 +5,7 @@ import flightbooking.dto.HanhKhachDTO;
 import flightbooking.gui.user.common.AppNavigator;
 import flightbooking.gui.user.common.TempVeStore;
 import flightbooking.gui.user.theme.UserTheme;
+import flightbooking.util.ValidationUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -108,33 +109,36 @@ public class PnlThongTinHanhKhach extends JPanel {
         });
 
         next.addActionListener(e -> {
-            HO_TEN = txtHoTen.getText().trim();
-            SO_GIAY_TO = txtSoGiayTo.getText().trim();
-            if (HO_TEN.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên.");
-                return;
+    HO_TEN = txtHoTen.getText().trim();
+    SO_GIAY_TO = txtSoGiayTo.getText().trim();
+
+    try {
+        ValidationUtil.validateName(HO_TEN, "Họ tên");
+        ValidationUtil.validateDocument(SO_GIAY_TO);
+
+        DatVeBUS.ThongTinHanhKhachVaGhe item = new DatVeBUS.ThongTinHanhKhachVaGhe();
+
+        HanhKhachDTO hk = new HanhKhachDTO();
+        hk.setHoTen(HO_TEN);
+        hk.setSoGiayTo(SO_GIAY_TO);
+
+        item.setHanhKhach(hk);
+        item.setGheId(PnlChonGhe.GHE_ID_DANG_CHON);
+
+        TempVeStore.upsertCurrent(item);
+        PnlChonGhe.GHE_ID_DANG_CHON = null;
+
+        nav.show("XAC_NHAN");
+        SwingUtilities.invokeLater(() -> {
+            Component comp = nav.get("XAC_NHAN");
+            if (comp instanceof PnlXacNhanDatVe) {
+                ((PnlXacNhanDatVe) comp).reload();
             }
-
-            DatVeBUS.ThongTinHanhKhachVaGhe item = new DatVeBUS.ThongTinHanhKhachVaGhe();
-
-            HanhKhachDTO hk = new HanhKhachDTO();
-            hk.setHoTen(HO_TEN);
-            hk.setSoGiayTo(SO_GIAY_TO);
-
-            item.setHanhKhach(hk);
-            item.setGheId(PnlChonGhe.GHE_ID_DANG_CHON);
-
-            TempVeStore.upsertCurrent(item);
-            PnlChonGhe.GHE_ID_DANG_CHON = null;
-
-            nav.show("XAC_NHAN");
-            SwingUtilities.invokeLater(() -> {
-                Component comp = nav.get("XAC_NHAN");
-                if (comp instanceof PnlXacNhanDatVe) {
-                    ((PnlXacNhanDatVe) comp).reload();
-                }
-            });
         });
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, ex.getMessage());
+    }
+});
 
         p.add(back);
         p.add(next);

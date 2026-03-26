@@ -9,6 +9,7 @@ import flightbooking.gui.user.common.AppNavigator;
 import flightbooking.gui.user.common.TempVeStore;
 import flightbooking.gui.user.theme.UserTheme;
 import flightbooking.util.SessionContext;
+import flightbooking.util.ValidationUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,39 +111,50 @@ public class PnlXacNhanDatVe extends JPanel {
     }
 
     private void datVe() {
-        try {
-            int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
-            List<DatVeBUS.ThongTinHanhKhachVaGhe> items = TempVeStore.getAll();
+    try {
+        int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
+        List<DatVeBUS.ThongTinHanhKhachVaGhe> items = TempVeStore.getAll();
 
-            if (items.isEmpty()) throw new RuntimeException("Bạn chưa thêm vé nào.");
+        if (items.isEmpty()) throw new RuntimeException("Bạn chưa thêm vé nào.");
 
-            Integer khachHangId = SessionContext.getCurrentUserId();
-            if (khachHangId == null) throw new RuntimeException("Bạn chưa đăng nhập.");
+        Integer khachHangId = SessionContext.getCurrentUserId();
+        if (khachHangId == null) throw new RuntimeException("Bạn chưa đăng nhập.");
 
-            int diemSuDung = 0;
-            if (chkUsePoint.isSelected()) {
-                try { diemSuDung = Integer.parseInt(txtDiem.getText()); } catch (Exception e) { diemSuDung = 0; }
+        int diemSuDung = 0;
+        if (chkUsePoint.isSelected()) {
+            try {
+                diemSuDung = Integer.parseInt(txtDiem.getText().trim());
+            } catch (Exception e) {
+                throw new RuntimeException("Số điểm phải là số nguyên hợp lệ.");
             }
 
-            datVeBUS.datVe(khachHangId, null, chuyenBayId, items, "online", diemSuDung);
+            ValidationUtil.validateNonNegativeInt(diemSuDung, "Số điểm sử dụng");
 
-            JOptionPane.showMessageDialog(this, "Đặt vé thành công!");
-
-            KhachHangBUS bus = new KhachHangBUS();
-            KhachHangDTO user = bus.getByUsername(SessionContext.getCurrentUsername());
-            SessionContext.setCurrentUser(user);
-
-            TempVeStore.clear();
-            PnlChonGhe.GHE_ID_DANG_CHON = null;
-            PnlThongTinHanhKhach.HO_TEN = "";
-            PnlThongTinHanhKhach.SO_GIAY_TO = "";
-
-            nav.show("TIM_CHUYEN");
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Đặt vé thất bại: " + ex.getMessage());
+            int diemHienTai = new KhachHangBUS().getDiem(khachHangId);
+            if (diemSuDung > diemHienTai) {
+                throw new RuntimeException("Số điểm sử dụng vượt quá số điểm hiện có.");
+            }
         }
+
+        datVeBUS.datVe(khachHangId, null, chuyenBayId, items, "online", diemSuDung);
+
+        JOptionPane.showMessageDialog(this, "Đặt vé thành công!");
+
+        KhachHangBUS bus = new KhachHangBUS();
+        KhachHangDTO user = bus.getByUsername(SessionContext.getCurrentUsername());
+        SessionContext.setCurrentUser(user);
+
+        TempVeStore.clear();
+        PnlChonGhe.GHE_ID_DANG_CHON = null;
+        PnlThongTinHanhKhach.HO_TEN = "";
+        PnlThongTinHanhKhach.SO_GIAY_TO = "";
+
+        nav.show("TIM_CHUYEN");
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Đặt vé thất bại: " + ex.getMessage());
     }
+}
 
     public void reload() {
         int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
@@ -208,34 +220,39 @@ public class PnlXacNhanDatVe extends JPanel {
     }
 
     private void updateTongTien() {
-        if (btnDone == null) return;
+    if (btnDone == null) return;
 
-        int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
-        List<DatVeBUS.ThongTinHanhKhachVaGhe> items = TempVeStore.getAll();
+    int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
+    List<DatVeBUS.ThongTinHanhKhachVaGhe> items = TempVeStore.getAll();
 
-        if (items.isEmpty()) {
-            btnDone.setText("Hoàn tất");
-            return;
-        }
-
-        BigDecimal tong = BigDecimal.ZERO;
-        for (DatVeBUS.ThongTinHanhKhachVaGhe it : items) {
-            tong = tong.add(datVeBUS.tinhGiaGhe(chuyenBayId, it.getGheId()));
-        }
-
-        Integer userId = SessionContext.getCurrentUserId();
-        if (userId != null && chkUsePoint.isSelected()) {
-            int diemSuDung = 0;
-            try { diemSuDung = Integer.parseInt(txtDiem.getText()); } catch (Exception e) { diemSuDung = 0; }
-
-            int diemHienTai = new KhachHangBUS().getDiem(userId);
-            if (diemSuDung > diemHienTai) diemSuDung = diemHienTai;
-
-            BigDecimal giam = BigDecimal.valueOf(diemSuDung * 10L);
-            tong = tong.subtract(giam);
-            if (tong.compareTo(BigDecimal.ZERO) < 0) tong = BigDecimal.ZERO;
-        }
-
-        btnDone.setText("Hoàn tất (" + tong + " VND)");
+    if (items.isEmpty()) {
+        btnDone.setText("Hoàn tất");
+        return;
     }
+
+    BigDecimal tong = BigDecimal.ZERO;
+    for (DatVeBUS.ThongTinHanhKhachVaGhe it : items) {
+        tong = tong.add(datVeBUS.tinhGiaGhe(chuyenBayId, it.getGheId()));
+    }
+
+    Integer userId = SessionContext.getCurrentUserId();
+    if (userId != null && chkUsePoint.isSelected()) {
+        int diemSuDung = 0;
+        try {
+            diemSuDung = Integer.parseInt(txtDiem.getText().trim());
+            if (diemSuDung < 0) diemSuDung = 0;
+        } catch (Exception e) {
+            diemSuDung = 0;
+        }
+
+        int diemHienTai = new KhachHangBUS().getDiem(userId);
+        if (diemSuDung > diemHienTai) diemSuDung = diemHienTai;
+
+        BigDecimal giam = BigDecimal.valueOf(diemSuDung * 10L);
+        tong = tong.subtract(giam);
+        if (tong.compareTo(BigDecimal.ZERO) < 0) tong = BigDecimal.ZERO;
+    }
+
+    btnDone.setText("Hoàn tất (" + tong + " VND)");
+}
 }

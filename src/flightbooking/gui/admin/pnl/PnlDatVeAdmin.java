@@ -11,10 +11,12 @@ import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
 import flightbooking.util.SessionContext;
+import java.time.LocalDateTime;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import flightbooking.util.ValidationUtil;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -207,6 +209,11 @@ btnImport.addActionListener(e -> {
         return;
     }
 
+    if (isChuyenBayDaKhoiHanh()) {
+        JOptionPane.showMessageDialog(this, "Chuyến bay đã khởi hành.");
+        return;
+    }
+
     int chuyenBayId = cb.id;
 
     JDialog dialog = new JDialog(
@@ -246,63 +253,66 @@ btnImport.addActionListener(e -> {
 }
 
     private void taoVe() {
-        ChuyenItem cb = (ChuyenItem) cbChuyen.getSelectedItem();
-        if (gheIdDaChon == null) {
-    JOptionPane.showMessageDialog(this, "Chưa chọn ghế.");
-    return;
-}
-int gheId = gheIdDaChon;
-        String ten = txtHoTen.getText().trim();
-        String giayto = txtSoGiayTo.getText().trim();
+    ChuyenItem cb = (ChuyenItem) cbChuyen.getSelectedItem();
 
-        if (cb == null || ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến, chọn ghế, nhập họ tên.");
-            return;
-        }
-
-        try {
-            int chuyenBayId = cb.id;
-            
-
-            DatVeBUS.ThongTinHanhKhachVaGhe item = new DatVeBUS.ThongTinHanhKhachVaGhe();
-            HanhKhachDTO hk = new HanhKhachDTO();
-            hk.setHoTen(ten);
-            hk.setSoGiayTo(giayto);
-
-            item.setHanhKhach(hk);
-            item.setGheId(gheId);
-
-            List<DatVeBUS.ThongTinHanhKhachVaGhe> items = new ArrayList<>();
-            items.add(item);
-
-            // ✅ FIX: Lấy ID admin từ SessionContext (đã được set khi login)
-            
-            Integer taiKhoanNhanVienId = SessionContext.getAdminTaiKhoanId();
-            if (taiKhoanNhanVienId == null || taiKhoanNhanVienId == 0) {
-    throw new RuntimeException("Admin chưa đăng nhập.");
-}
-            
-            // Nếu có admin session, bạn có thể lấy ID nhân viên từ username
-            // Nhưng hiện tại để null (vì không có method lấy ID từ username trong SessionContext)
-            
-
-            datVeBUS.datVe(
-    null,
-    taiKhoanNhanVienId,  // ✔ nhân viên
-    chuyenBayId,
-    items,
-    (String) cbPay.getSelectedItem(),
-    0
-);
-
-            JOptionPane.showMessageDialog(this, "✓ Tạo vé thành công!");
-            clearForm();
-            repaint();
-             // refresh vì ghế vừa đặt xong
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "❌ Không tạo được vé: " + ex.getMessage());
-        }
+    if (cb == null) {
+        JOptionPane.showMessageDialog(this, "Vui lòng chọn chuyến bay.");
+        return;
     }
+
+    if (isChuyenBayDaKhoiHanh()) {
+        JOptionPane.showMessageDialog(this, "Chuyến bay đã khởi hành.");
+        return;
+    }
+
+    if (gheIdDaChon == null) {
+        JOptionPane.showMessageDialog(this, "Chưa chọn ghế.");
+        return;
+    }
+
+    int gheId = gheIdDaChon;
+    String ten = txtHoTen.getText().trim();
+    String giayto = txtSoGiayTo.getText().trim();
+
+    try {
+        ValidationUtil.validateName(ten, "Họ tên hành khách");
+        ValidationUtil.validateDocument(giayto);
+
+        int chuyenBayId = cb.id;
+
+        DatVeBUS.ThongTinHanhKhachVaGhe item = new DatVeBUS.ThongTinHanhKhachVaGhe();
+        HanhKhachDTO hk = new HanhKhachDTO();
+        hk.setHoTen(ten);
+        hk.setSoGiayTo(giayto);
+
+        item.setHanhKhach(hk);
+        item.setGheId(gheId);
+
+        List<DatVeBUS.ThongTinHanhKhachVaGhe> items = new ArrayList<>();
+        items.add(item);
+
+        Integer taiKhoanNhanVienId = SessionContext.getAdminTaiKhoanId();
+        if (taiKhoanNhanVienId == null || taiKhoanNhanVienId == 0) {
+            throw new RuntimeException("Admin chưa đăng nhập.");
+        }
+
+        datVeBUS.datVe(
+                null,
+                taiKhoanNhanVienId,
+                chuyenBayId,
+                items,
+                (String) cbPay.getSelectedItem(),
+                0
+        );
+
+        JOptionPane.showMessageDialog(this, "✓ Tạo vé thành công!");
+        clearForm();
+        loadVeNhanVien();
+        repaint();
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "❌ Không tạo được vé: " + ex.getMessage());
+    }
+}
 
     // ✅ Clear form sau khi đặt vé thành công
     private void clearForm() {
@@ -384,5 +394,23 @@ public void reloadData() {
     tableVe.clearSelection();
     revalidate();
     repaint();
+}
+private ChuyenBayDTO getSelectedChuyenBay() {
+    ChuyenItem cb = (ChuyenItem) cbChuyen.getSelectedItem();
+    if (cb == null) return null;
+
+    List<ChuyenBayDTO> list = chuyenBayBUS.dsChuyenBay();
+    for (ChuyenBayDTO c : list) {
+        if (c.getChuyenBayId() == cb.id) {
+            return c;
+        }
+    }
+    return null;
+}
+
+private boolean isChuyenBayDaKhoiHanh() {
+    ChuyenBayDTO c = getSelectedChuyenBay();
+    if (c == null || c.getGioKhoiHanh() == null) return false;
+    return !c.getGioKhoiHanh().isAfter(LocalDateTime.now());
 }
 }

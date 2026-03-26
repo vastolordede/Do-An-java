@@ -11,6 +11,7 @@ import flightbooking.dto.QuyenDTO;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
+import flightbooking.util.ValidationUtil;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -505,59 +506,67 @@ if (nv.getNgayNghi() != null) {
     // ================= HELPER =================
 
     private NhanVienDTO getFormData(Integer id) {
+    NhanVienDTO nv = new NhanVienDTO();
 
-        NhanVienDTO nv = new NhanVienDTO();
+    if (id != null) nv.setNhanVienId(id);
 
-        if (id != null) nv.setNhanVienId(id);
+    nv.setHoTen(txtHoTen.getText().trim());
+    ValidationUtil.validateName(nv.getHoTen(), "Họ tên");
 
-        nv.setHoTen(txtHoTen.getText().trim());
-        if (nv.getHoTen().isEmpty())
-            throw new RuntimeException("Họ tên không được để trống.");
+    nv.setEmail(txtEmail.getText().trim());
+    ValidationUtil.validateEmail(nv.getEmail());
 
-        nv.setEmail(txtEmail.getText().trim());
-        if (nv.getEmail().isEmpty())
-            throw new RuntimeException("Email không được để trống.");
+    nv.setDienThoai(txtDienThoai.getText().trim());
+    ValidationUtil.validatePhone10Digits(nv.getDienThoai());
 
-        nv.setDienThoai(txtDienThoai.getText().trim());
-        if (nv.getDienThoai().isEmpty())
-            throw new RuntimeException("Số điện thoại không được để trống.");
-
-        try {
-            nv.setLuongCoBan(new BigDecimal(txtLuong.getText().trim()));
-        } catch (Exception e) {
-            throw new RuntimeException("Lương phải là số hợp lệ.");
-        }
-
-        try {
-            java.util.Date d1 = (java.util.Date) spNgayVaoLam.getValue();
-nv.setNgayVaoLam(
-    d1.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-);
-        } catch (Exception e) {
-            throw new RuntimeException("Ngày vào sai định dạng yyyy-MM-dd.");
-        }
-
-        java.util.Date d2 = (java.util.Date) spNgayNghi.getValue();
-
-nv.setNgayNghi(
-    d2.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-);
-       
-
-        Item pb = (Item) cbPhongBan.getSelectedItem();
-        Item cv = (Item) cbChucVu.getSelectedItem();
-
-        if (pb != null) nv.setPhongBanId(pb.id);
-        if (cv != null) nv.setChucVuId(cv.id);
-
-        if (id == null) {
-            nv.setTrangThai(1);
-        } else {
-            nv.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-        }
-
-        return nv;
+    try {
+        nv.setLuongCoBan(new BigDecimal(txtLuong.getText().trim()));
+        ValidationUtil.validateNonNegative(nv.getLuongCoBan(), "Lương");
+    } catch (Exception e) {
+        throw new RuntimeException("Lương phải là số hợp lệ.");
     }
+
+    try {
+        java.util.Date d1 = (java.util.Date) spNgayVaoLam.getValue();
+        nv.setNgayVaoLam(
+                d1.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        );
+    } catch (Exception e) {
+        throw new RuntimeException("Ngày vào sai định dạng yyyy-MM-dd.");
+    }
+
+    try {
+        java.util.Date d2 = (java.util.Date) spNgayNghi.getValue();
+        nv.setNgayNghi(
+                d2.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        );
+    } catch (Exception e) {
+        throw new RuntimeException("Ngày nghỉ sai định dạng yyyy-MM-dd.");
+    }
+
+    if (nv.getNgayVaoLam() != null && nv.getNgayNghi() != null) {
+        ValidationUtil.validateDateOrder(
+                nv.getNgayVaoLam(),
+                nv.getNgayNghi(),
+                "Ngày vào làm",
+                "Ngày nghỉ"
+        );
+    }
+
+    Item pb = (Item) cbPhongBan.getSelectedItem();
+    Item cv = (Item) cbChucVu.getSelectedItem();
+
+    if (pb != null) nv.setPhongBanId(pb.id);
+    if (cv != null) nv.setChucVuId(cv.id);
+
+    if (id == null) {
+        nv.setTrangThai(1);
+    } else {
+        nv.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+    }
+
+    return nv;
+}
 
     private void selectComboById(JComboBox<Item> cb, Integer id) {
         if (id == null) return;

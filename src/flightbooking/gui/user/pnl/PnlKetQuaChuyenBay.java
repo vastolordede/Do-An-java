@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class PnlKetQuaChuyenBay extends JPanel {
@@ -19,7 +20,10 @@ public class PnlKetQuaChuyenBay extends JPanel {
     private final DefaultTableModel model = new DefaultTableModel(
             new Object[]{"Chuyến bay ID", "Tuyến", "Giờ KH", "Giờ Đến", "Trạng thái"}, 0
     ) {
-        @Override public boolean isCellEditable(int row, int col) { return false; }
+        @Override
+        public boolean isCellEditable(int row, int col) {
+            return false;
+        }
     };
 
     private final JTable table = new JTable(model);
@@ -36,6 +40,12 @@ public class PnlKetQuaChuyenBay extends JPanel {
         add(buildHeader(), BorderLayout.NORTH);
         add(new JScrollPane(table), BorderLayout.CENTER);
         add(buildActions(), BorderLayout.SOUTH);
+
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (e.getValueIsAdjusting()) return;
+            xuLyChonDong();
+        });
 
         reload();
     }
@@ -64,7 +74,6 @@ public class PnlKetQuaChuyenBay extends JPanel {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         p.setOpaque(false);
 
-        // ✅ Dùng UserTheme thay vì private methods cũ
         JButton back = UserTheme.createOutlineButton("← Quay lại");
         JButton next = UserTheme.createButton("Chọn ghế →");
 
@@ -83,13 +92,12 @@ public class PnlKetQuaChuyenBay extends JPanel {
         int den = PnlTimChuyenBay.SANBAY_DEN_ID;
         String ngayStr = PnlTimChuyenBay.NGAY;
 
-        if (di <= 0 || den <= 0 || ngayStr == null || ngayStr.isBlank()) return;
+        if (di <= 0 || den <= 0 || ngayStr == null || ngayStr.isBlank()) {
+            return;
+        }
 
-        
-LocalDate ngay = LocalDate.parse(ngayStr);
-
-// ✅ dùng hàm mới
-List<ChuyenBayDTO> list = chuyenBayBUS.timChuyenTheoNgay(di, den, ngay);
+        LocalDate ngay = LocalDate.parse(ngayStr);
+        List<ChuyenBayDTO> list = chuyenBayBUS.timChuyenTheoNgay(di, den, ngay);
 
         for (ChuyenBayDTO c : list) {
             String tuyen =
@@ -107,13 +115,59 @@ List<ChuyenBayDTO> list = chuyenBayBUS.timChuyenTheoNgay(di, den, ngay);
         }
     }
 
+    private void xuLyChonDong() {
+        int row = table.getSelectedRow();
+        if (row < 0) return;
+
+        Object gioKhoiHanhObj = model.getValueAt(row, 2);
+        LocalDateTime gioKhoiHanh;
+
+        try {
+            if (gioKhoiHanhObj instanceof LocalDateTime) {
+                gioKhoiHanh = (LocalDateTime) gioKhoiHanhObj;
+            } else {
+                gioKhoiHanh = LocalDateTime.parse(String.valueOf(gioKhoiHanhObj));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Không đọc được giờ khởi hành.");
+            table.clearSelection();
+            return;
+        }
+
+        if (!gioKhoiHanh.isAfter(LocalDateTime.now())) {
+            JOptionPane.showMessageDialog(this, "Chuyến bay đã khởi hành.");
+            table.clearSelection();
+        }
+    }
+
     private void chonChuyen() {
         int row = table.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Bạn hãy chọn 1 chuyến bay.");
             return;
         }
+
+        Object gioKhoiHanhObj = model.getValueAt(row, 2);
+        LocalDateTime gioKhoiHanh;
+
+        try {
+            if (gioKhoiHanhObj instanceof LocalDateTime) {
+                gioKhoiHanh = (LocalDateTime) gioKhoiHanhObj;
+            } else {
+                gioKhoiHanh = LocalDateTime.parse(String.valueOf(gioKhoiHanhObj));
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Không đọc được giờ khởi hành.");
+            return;
+        }
+
+        if (!gioKhoiHanh.isAfter(LocalDateTime.now())) {
+            JOptionPane.showMessageDialog(this, "Chuyến bay đã khởi hành.");
+            return;
+        }
+
         CHUYEN_BAY_ID_CHON = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
+
         nav.show("CHON_GHE");
         Component comp = nav.get("CHON_GHE");
         if (comp instanceof PnlChonGhe) {
