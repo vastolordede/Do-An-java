@@ -98,6 +98,30 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
     }
 
     private void add() {
+        String ten = txtTen.getText().trim();
+        String tp = txtThanhPho.getText().trim();
+        String qg = txtQuocGia.getText().trim();
+
+        if (ten.isEmpty() || tp.isEmpty() || qg.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không được để trống.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(ten)) {
+            JOptionPane.showMessageDialog(this, "Tên sân bay không hợp lệ.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(tp)) {
+            JOptionPane.showMessageDialog(this, "Thành phố không hợp lệ.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(qg)) {
+            JOptionPane.showMessageDialog(this, "Quốc gia không hợp lệ.");
+            return;
+        }
+
         SanBayDTO s = new SanBayDTO();
         s.setTenSanBay(txtTen.getText().trim());
         s.setThanhPho(txtThanhPho.getText().trim());
@@ -110,6 +134,30 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
     private void update() {
         int row = table.getSelectedRow();
         if (row < 0) return;
+
+        String ten = txtTen.getText().trim();
+        String tp = txtThanhPho.getText().trim();
+        String qg = txtQuocGia.getText().trim();
+
+        if (ten.isEmpty() || tp.isEmpty() || qg.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Không được để trống.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(ten)) {
+            JOptionPane.showMessageDialog(this, "Tên sân bay không hợp lệ.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(tp)) {
+            JOptionPane.showMessageDialog(this, "Thành phố không hợp lệ.");
+            return;
+        }
+
+        if (!flightbooking.util.Validator.isValidName(qg)) {
+            JOptionPane.showMessageDialog(this, "Quốc gia không hợp lệ.");
+            return;
+        }
 
         int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
 

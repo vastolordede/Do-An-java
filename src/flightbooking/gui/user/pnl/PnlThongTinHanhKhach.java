@@ -114,7 +114,11 @@ public class PnlThongTinHanhKhach extends JPanel {
 
     try {
         ValidationUtil.validateName(HO_TEN, "Họ tên");
-        ValidationUtil.validateDocument(SO_GIAY_TO);
+        if (SO_GIAY_TO == null || SO_GIAY_TO.trim().isEmpty())
+            throw new RuntimeException("Giấy tờ không được để trống.");
+
+        if (!SO_GIAY_TO.matches("^(\\d{9}|\\d{12})$"))
+            throw new RuntimeException("CMND/CCCD phải gồm 9 hoặc 12 chữ số.");
 
         DatVeBUS.ThongTinHanhKhachVaGhe item = new DatVeBUS.ThongTinHanhKhachVaGhe();
 

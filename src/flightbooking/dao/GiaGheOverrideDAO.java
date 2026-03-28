@@ -4,6 +4,8 @@ import flightbooking.dto.GiaGheOverrideDTO;
 
 import java.math.BigDecimal;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GiaGheOverrideDAO extends BaseDAO {
 
@@ -65,7 +67,8 @@ if (t != null) d.setCapNhatLuc(t.toLocalDateTime());
 }
 public void insert(int chuyenBayId,int gheId,BigDecimal price){
 
-    String sql = "insert into giagheoverride(chuyenbay_id,ghe_id,giaoverride) values (?,?,?)";
+    String sql = "INSERT INTO giagheoverride(chuyenbay_id, ghe_id, giaoverride) VALUES (?, ?, ?) "
+               + "ON CONFLICT (chuyenbay_id, ghe_id) DO UPDATE SET giaoverride = EXCLUDED.giaoverride";
 
     try(Connection c = getConnection();
         PreparedStatement ps = c.prepareStatement(sql)){
@@ -79,5 +82,27 @@ public void insert(int chuyenBayId,int gheId,BigDecimal price){
     }catch(Exception e){
         throw new RuntimeException(e);
     }
+}
+
+public List<GiaGheOverrideDTO> findByChuyenBay(int chuyenBayId) {
+    String sql = "SELECT * FROM giagheoverride WHERE chuyenbay_id = ?";
+    List<GiaGheOverrideDTO> result = new ArrayList<>();
+
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
+        ps.setInt(1, chuyenBayId);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                GiaGheOverrideDTO d = new GiaGheOverrideDTO();
+                d.setGheId(rs.getInt("ghe_id"));
+                d.setGiaOverride(rs.getBigDecimal("giaoverride"));
+                result.add(d);
+            }
+        }
+    } catch (Exception e) {
+        throw new RuntimeException(e);
+    }
+    return result;
 }
 }

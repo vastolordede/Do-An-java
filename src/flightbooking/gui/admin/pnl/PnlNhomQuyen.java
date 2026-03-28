@@ -8,7 +8,7 @@ import flightbooking.dto.NhomQuyenDTO;
 import flightbooking.dto.QuyenDTO;
 import flightbooking.util.ActionConstants;
 import flightbooking.dto.QuyenActionDTO;
-
+import flightbooking.util.Validator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -302,6 +302,16 @@ List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
 
     private void save() {
     try {
+        String ten = txtTen.getText().trim();
+
+        if (ten.isEmpty()) {
+            throw new RuntimeException("Tên nhóm quyền không được để trống.");
+        }
+
+        if (!Validator.isValidName(ten)) {
+            throw new RuntimeException("Tên nhóm quyền chỉ được chứa chữ và khoảng trắng.");
+        }
+
         bus.createNhomQuyen(txtTen.getText(), getSelected(), getSelectedActions());
         loadTable();
         clearForm();

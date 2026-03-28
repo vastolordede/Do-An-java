@@ -27,9 +27,10 @@ public class PnlXacNhanDatVe extends JPanel {
 
     private JCheckBox chkUsePoint = new JCheckBox("Dùng điểm");
     private JTextField txtDiem = new JTextField("0");
-
+    
     public PnlXacNhanDatVe(AppNavigator nav) {
         this.nav = nav;
+        txtDiem.setEnabled(false);
 
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
@@ -45,7 +46,36 @@ public class PnlXacNhanDatVe extends JPanel {
             }
         });
 
-        chkUsePoint.addActionListener(e -> updateTongTien());
+        chkUsePoint.addActionListener(e -> {
+            boolean checked = chkUsePoint.isSelected();
+            txtDiem.setEnabled(checked);
+
+            if (!checked) {
+                txtDiem.setText("0");
+            }
+
+            updateTongTien();
+        });
+
+        // Chỉ cho nhập số (không âm)
+((javax.swing.text.AbstractDocument) txtDiem.getDocument())
+    .setDocumentFilter(new javax.swing.text.DocumentFilter() {
+        @Override
+        public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr)
+                throws javax.swing.text.BadLocationException {
+            if (string.matches("\\d+")) {
+                super.insertString(fb, offset, string, attr);
+            }
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs)
+                throws javax.swing.text.BadLocationException {
+            if (text.matches("\\d*")) {
+                super.replace(fb, offset, length, text, attrs);
+            }
+        }
+    });
     }
 
     private JComponent buildHeader() {

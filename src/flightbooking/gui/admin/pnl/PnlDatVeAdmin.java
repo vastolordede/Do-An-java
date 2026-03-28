@@ -276,7 +276,11 @@ btnImport.addActionListener(e -> {
 
     try {
         ValidationUtil.validateName(ten, "Họ tên hành khách");
-        ValidationUtil.validateDocument(giayto);
+        if (giayto == null || giayto.trim().isEmpty())
+            throw new RuntimeException("Giấy tờ không được để trống.");
+
+        if (!giayto.matches("^(\\d{9}|\\d{12})$"))
+            throw new RuntimeException("CMND/CCCD phải gồm 9 hoặc 12 chữ số.");
 
         int chuyenBayId = cb.id;
 

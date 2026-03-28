@@ -133,10 +133,19 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
     private void add() {
         Item di = (Item) cbSanBayDi.getSelectedItem();
         Item den = (Item) cbSanBayDen.getSelectedItem();
-        if (di == null || den == null) return;
+        if (di == null || den == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sân bay.");
+            return;
+        }
 
         if (di.id == den.id) {
             JOptionPane.showMessageDialog(this, "Sân bay đi và đến không được trùng nhau.");
+            return;
+        }
+
+        int soDam = (int) spSoDam.getValue();
+        if (soDam <= 0) {
+            JOptionPane.showMessageDialog(this, "Số dặm phải lớn hơn 0.");
             return;
         }
 
@@ -145,8 +154,12 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
         t.setSanBayDenId(den.id);
         t.setSoDam((int) spSoDam.getValue());
 
-        tuyenBayBUS.themTuyenBay(t);
-        reload();
+        try {
+            tuyenBayBUS.themTuyenBay(t);
+            reload();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
     }
 
     private void update() {
@@ -155,7 +168,16 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
 
         Item di = (Item) cbSanBayDi.getSelectedItem();
         Item den = (Item) cbSanBayDen.getSelectedItem();
-        if (di == null || den == null) return;
+        if (di == null || den == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sân bay.");
+            return;
+        }
+
+        int soDam = (int) spSoDam.getValue();
+        if (soDam <= 0) {
+            JOptionPane.showMessageDialog(this, "Số dặm phải lớn hơn 0.");
+            return;
+        }
 
         int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
 
@@ -165,8 +187,12 @@ return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport,
         t.setSanBayDenId(den.id);
         t.setSoDam((int) spSoDam.getValue());
 
-        tuyenBayBUS.capNhatTuyenBay(t);
-        reload();
+        try {
+            tuyenBayBUS.capNhatTuyenBay(t);
+            reload();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
     }
 
     private void delete() {

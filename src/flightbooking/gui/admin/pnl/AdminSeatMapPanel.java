@@ -1,7 +1,11 @@
 package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.DatVeBUS;
+import flightbooking.dao.GiaGheOverrideDAO;
+import flightbooking.dao.GiaHangChuyenBayDAO;
 import flightbooking.dto.GheDTO;
+import flightbooking.dto.GiaGheOverrideDTO;
+import flightbooking.dto.GiaHangChuyenBayDTO;
 import flightbooking.gui.common.AircraftLayoutPanel;
 import flightbooking.gui.common.SeatMapRenderUtil;
 
@@ -14,14 +18,22 @@ import java.util.Map;
 public class AdminSeatMapPanel extends JPanel {
 
     private final DatVeBUS datVeBUS = new DatVeBUS();
+    private final GiaHangChuyenBayDAO giaHangDAO = new GiaHangChuyenBayDAO();
+    private final GiaGheOverrideDAO overrideDAO = new GiaGheOverrideDAO();
+
+    private final Map<Integer, Long> basePriceCache = new HashMap<>();
+    private final Map<Integer, Long> overridePriceCache = new HashMap<>();
 
     public Integer gheDangChon = null;
     public String gheText = "";
 
-    private final Map<Integer, JButton> seatButtonMap = new HashMap<Integer, JButton>();
+    private final Map<Integer, JButton> seatButtonMap = new HashMap<>();
 
     public AdminSeatMapPanel(int chuyenBayId) {
         setLayout(new BorderLayout());
+
+        loadPriceCache(chuyenBayId);
+        loadOverrideCache(chuyenBayId);
 
         final List<GheDTO> ds = datVeBUS.dsGheCuaChuyen(chuyenBayId);
         if (ds == null || ds.isEmpty()) {
@@ -32,7 +44,11 @@ public class AdminSeatMapPanel extends JPanel {
         JComponent seatMap = SeatMapRenderUtil.buildSeatMap(ds, new SeatMapRenderUtil.SeatComponentFactory() {
             @Override
             public JComponent createSeat(final GheDTO ghe) {
-                JButton btn = new JButton("<html><center><b>" + ghe.getTenGhe() + "</b></center></html>");
+                long price = getSeatPrice(ghe);
+
+                JButton btn = new JButton(
+                    "<html><center><b>" + ghe.getTenGhe() + "</b><br>" + formatPrice(price) + "</center></html>"
+                );
                 btn.setPreferredSize(new Dimension(58, 46));
                 btn.setMargin(new Insets(2, 2, 2, 2));
                 btn.setFont(new Font("Arial", Font.PLAIN, 11));
@@ -70,6 +86,50 @@ public class AdminSeatMapPanel extends JPanel {
 
         add(aircraftPanel, BorderLayout.CENTER);
         add(buildLegend(), BorderLayout.SOUTH);
+    }
+
+    private void loadPriceCache(int chuyenBayId) {
+        try {
+            List<GiaHangChuyenBayDTO> list = giaHangDAO.findByChuyenBay(chuyenBayId);
+            for (GiaHangChuyenBayDTO g : list) {
+                long giaCoBan = g.getGiaCoBan().longValue();
+                long thue = g.getThuePhi() != null ? g.getThuePhi().longValue() : 0L;
+                long giaSau = giaCoBan + (giaCoBan * thue / 100);
+                basePriceCache.put(g.getHangGheId(), giaSau);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadOverrideCache(int chuyenBayId) {
+        try {
+            List<GiaGheOverrideDTO> list = overrideDAO.findByChuyenBay(chuyenBayId);
+            for (GiaGheOverrideDTO o : list) {
+                if (o.getGheId() != null && o.getGiaOverride() != null) {
+                    overridePriceCache.put(o.getGheId(), o.getGiaOverride().longValue());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private long getSeatPrice(GheDTO ghe) {
+        Long overridePrice = overridePriceCache.get(ghe.getGheId());
+        if (overridePrice != null) return overridePrice;
+
+        Long price = basePriceCache.get(ghe.getHangGheId());
+        return price != null ? price : 0L;
+    }
+
+    private String formatPrice(long price) {
+        if (price >= 1_000_000) {
+            return String.format("%.1fM", price / 1_000_000.0);
+        } else if (price >= 1_000) {
+            return (price / 1_000) + "K";
+        }
+        return price + "đ";
     }
 
     private void resetAllSeatColors(List<GheDTO> ds) {

@@ -1,6 +1,7 @@
 package flightbooking.dao;
 
 import flightbooking.dto.ChuyenBayDTO;
+import flightbooking.util.DBConnection;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -210,5 +211,28 @@ public List<ChuyenBayDTO> searchByNgay(int sanBayDiId, int sanBayDenId, LocalDat
         }
     }
     return list;
+}
+
+public boolean existsChuyenBay(int tuyenBayId, java.time.LocalDateTime gioKhoiHanh, int mayBayId) throws SQLException {
+    String sql = 
+    "SELECT COUNT(*) " +
+    "FROM chuyenbay " +
+    "WHERE tuyenbay_id = ? " +
+    "AND giokhoihanh = ? " +
+    "AND maybay_id = ?";
+
+    try (Connection c = DBConnection.getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
+
+        ps.setInt(1, tuyenBayId);
+        ps.setTimestamp(2, java.sql.Timestamp.valueOf(gioKhoiHanh));
+        ps.setInt(3, mayBayId);
+
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    }
+    return false;
 }
 }

@@ -4,6 +4,7 @@ import flightbooking.dao.GheDAO;
 import flightbooking.dao.GiaGheOverrideDAO;
 import flightbooking.dao.GiaHangChuyenBayDAO;
 import flightbooking.dto.GheDTO;
+import flightbooking.dto.GiaGheOverrideDTO;
 import flightbooking.dto.GiaHangChuyenBayDTO;
 import flightbooking.gui.common.AircraftLayoutPanel;
 import flightbooking.gui.common.SeatMapRenderUtil;
@@ -22,11 +23,17 @@ public class SeatMapPanel extends JPanel {
     private final GiaHangChuyenBayDAO giaHangDAO = new GiaHangChuyenBayDAO();
     private final GiaGheOverrideDAO overrideDAO = new GiaGheOverrideDAO();
 
-    private final Map<Integer, Long> basePriceCache = new HashMap<Integer, Long>();
+    private final Map<Integer, Long> basePriceCache = new HashMap<>();
+    private final Map<Integer, Long> overridePriceCache = new HashMap<>(); // load 1 lần, không query từng ghế
+
+    private final int chuyenBayId;
 
     public SeatMapPanel(final int chuyenBayId, int mayBayId) {
+        this.chuyenBayId = chuyenBayId;
         setLayout(new BorderLayout());
+
         loadPriceCache(chuyenBayId);
+        loadOverrideCache(chuyenBayId); // 1 query duy nhất thay vì N query
 
         final List<GheDTO> seats = gheDAO.findByMayBay(mayBayId);
         if (seats == null || seats.isEmpty()) {
@@ -71,7 +78,6 @@ public class SeatMapPanel extends JPanel {
             for (GiaHangChuyenBayDTO g : list) {
                 long giaCoBan = g.getGiaCoBan().longValue();
                 long thue = g.getThuePhi() != null ? g.getThuePhi().longValue() : 0L;
-
                 long giaSauLai = giaCoBan + (giaCoBan * thue / 100);
                 basePriceCache.put(g.getHangGheId(), giaSauLai);
             }
@@ -80,9 +86,26 @@ public class SeatMapPanel extends JPanel {
         }
     }
 
+    private void loadOverrideCache(int chuyenBayId) {
+        try {
+            List<GiaGheOverrideDTO> list = overrideDAO.findByChuyenBay(chuyenBayId);
+            for (GiaGheOverrideDTO o : list) {
+                if (o.getGheId() != null && o.getGiaOverride() != null) {
+                    overridePriceCache.put(o.getGheId(), o.getGiaOverride().longValue());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private long getSeatPrice(GheDTO ghe) {
+        // Ưu tiên override từ cache — không query DB
+        Long overridePrice = overridePriceCache.get(ghe.getGheId());
+        if (overridePrice != null) return overridePrice;
+
         Long price = basePriceCache.get(ghe.getHangGheId());
-        return price != null ? price.longValue() : 0L;
+        return price != null ? price : 0L;
     }
 
     private void overrideSeatPrice(int chuyenBayId, GheDTO ghe, JButton btn) {
@@ -95,6 +118,9 @@ public class SeatMapPanel extends JPanel {
         try {
             BigDecimal newPrice = new BigDecimal(s.trim());
             overrideDAO.insert(chuyenBayId, ghe.getGheId(), newPrice);
+
+            // Cập nhật cache luôn, không cần reload toàn bộ
+            overridePriceCache.put(ghe.getGheId(), newPrice.longValue());
 
             JOptionPane.showMessageDialog(this, "Đã cập nhật giá thành công!");
 

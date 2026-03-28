@@ -30,7 +30,7 @@ public class PnlThongKe extends JPanel {
     private final JLabel lblDoanhThuTB = new JLabel("0");
 
     private final DefaultTableModel modelChuyenBay = new DefaultTableModel(
-            new Object[]{"Chuyến bay", "Tuyến bay", "Giờ khởi hành", "Vé hiệu lực", "Vé hủy", "Doanh thu", "Tỷ lệ hủy"}, 0
+            new Object[]{"Chuyến bay", "Tuyến bay", "Giờ khởi hành", "Vé đã bán", "Vé hủy", "Doanh thu", "Tỷ lệ hủy"}, 0
     ) {
         @Override
         public boolean isCellEditable(int row, int column) {
@@ -91,7 +91,7 @@ public class PnlThongKe extends JPanel {
 
         JPanel cards = new JPanel(new GridLayout(1, 4, 10, 10));
         cards.add(createCard("Tổng doanh thu", lblTongDoanhThu));
-        cards.add(createCard("Vé hiệu lực", lblTongVeHieuLuc));
+        cards.add(createCard("Vé đã bán", lblTongVeHieuLuc));
         cards.add(createCard("Vé đã hủy", lblTongVeHuy));
         cards.add(createCard("Doanh thu TB / vé", lblDoanhThuTB));
 

@@ -5,6 +5,7 @@ import flightbooking.dto.HangHangKhongDTO;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
+import flightbooking.util.Validator;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -81,6 +82,17 @@ btnExport.addActionListener(e -> {
     private void add() {
         HangHangKhongDTO h = new HangHangKhongDTO();
         h.setTenHang(txtTen.getText().trim());
+        String ten = txtTen.getText().trim();
+
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên hãng không được để trống.");
+            return;
+        }
+
+        if (!Validator.isValidName(ten)) {
+            JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng.");
+            return;
+        }
         hhkBUS.themHHK(h);
         reload();
         txtTen.setText("");
@@ -92,6 +104,18 @@ btnExport.addActionListener(e -> {
         HangHangKhongDTO h = new HangHangKhongDTO();
         h.setHangHangKhongId((int) model.getValueAt(row, 0));
         h.setTenHang(txtTen.getText().trim());
+        String ten = txtTen.getText().trim();
+
+        if (ten.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên hãng không được để trống.");
+            return;
+        }
+
+        if (!Validator.isValidName(ten)) {
+            JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng.");
+            return;
+        }
+
         hhkBUS.capNhatHHK(h);
         reload();
     }

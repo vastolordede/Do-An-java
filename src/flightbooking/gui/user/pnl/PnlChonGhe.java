@@ -2,27 +2,40 @@ package flightbooking.gui.user.pnl;
 
 import flightbooking.bus.DatVeBUS;
 import flightbooking.dto.GheDTO;
+import flightbooking.dto.GiaGheOverrideDTO;
 import flightbooking.gui.common.SeatMapRenderUtil;
 import flightbooking.gui.user.common.AppNavigator;
 import flightbooking.gui.user.common.TempVeStore;
 import flightbooking.gui.user.theme.UserTheme;
+import flightbooking.dao.GiaGheOverrideDAO;
+import flightbooking.dao.GiaHangChuyenBayDAO;
+import flightbooking.dto.GiaHangChuyenBayDTO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PnlChonGhe extends JPanel {
 
     private final AppNavigator nav;
     private final DatVeBUS datVeBUS = new DatVeBUS();
     private final JLabel lblInfo = new JLabel("Chọn ghế");
+    private final Map<Integer, Long> basePriceCache = new HashMap<>();
+    private final GiaHangChuyenBayDAO giaHangDAO = new GiaHangChuyenBayDAO();
     private JComponent seatArea;
+
+    // Thêm field
+    private final GiaGheOverrideDAO overrideDAO = new GiaGheOverrideDAO();
+    private final Map<Integer, Long> overridePriceCache = new HashMap<>();
 
     public static Integer GHE_ID_DANG_CHON = null;
     public static String GHE_TEXT_DA_CHON = "";
 
     public PnlChonGhe(AppNavigator nav) {
+        // loadPriceCache(PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON);
         this.nav = nav;
 
         setLayout(new BorderLayout(12, 12));
@@ -44,6 +57,10 @@ public class PnlChonGhe extends JPanel {
 
     private JComponent buildSeatMap() {
         int chuyenBayId = PnlKetQuaChuyenBay.CHUYEN_BAY_ID_CHON;
+
+        loadPriceCache(chuyenBayId);
+        loadOverrideCache(chuyenBayId);
+
         final List<GheDTO> ds = datVeBUS.dsGheCuaChuyen(chuyenBayId);
 
         if (ds == null || ds.isEmpty()) {
@@ -63,7 +80,11 @@ public class PnlChonGhe extends JPanel {
         return SeatMapRenderUtil.buildSeatMap(ds, new SeatMapRenderUtil.SeatComponentFactory() {
             @Override
             public JComponent createSeat(final GheDTO ghe) {
-                JButton b = new JButton(ghe.getTenGhe());
+                long price = getSeatPrice(ghe);
+
+                JButton b = new JButton(
+                    "<html><center>" + ghe.getTenGhe() + "<br>" + formatPrice(price) + "</center></html>"
+                );
                 b.setPreferredSize(new Dimension(56, 40));
                 b.setFocusPainted(false);
                 b.setContentAreaFilled(true);
@@ -179,4 +200,50 @@ public class PnlChonGhe extends JPanel {
         p.add(new JLabel(text));
         return p;
     }
+
+    private void loadPriceCache(int chuyenBayId) {
+        try {
+            List<GiaHangChuyenBayDTO> list = giaHangDAO.findByChuyenBay(chuyenBayId);
+            for (GiaHangChuyenBayDTO g : list) {
+                long giaCoBan = g.getGiaCoBan().longValue();
+                long thue = g.getThuePhi() != null ? g.getThuePhi().longValue() : 0L;
+
+                long giaSau = giaCoBan + (giaCoBan * thue / 100);
+                basePriceCache.put(g.getHangGheId(), giaSau);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private long getSeatPrice(GheDTO ghe) {
+        Long overridePrice = overridePriceCache.get(ghe.getGheId());
+        if (overridePrice != null) return overridePrice;
+        
+        Long price = basePriceCache.get(ghe.getHangGheId());
+        return price != null ? price : 0L;
+    }
+
+    private String formatPrice(long price) {
+    if (price >= 1_000_000) {
+        return String.format("%.1fM", price / 1_000_000.0);
+    } else if (price >= 1_000) {
+        return (price / 1_000) + "K";
+    }
+    return price + "đ";
+}
+
+// Thêm method
+private void loadOverrideCache(int chuyenBayId) {
+    try {
+        List<GiaGheOverrideDTO> list = overrideDAO.findByChuyenBay(chuyenBayId);
+        for (GiaGheOverrideDTO o : list) {
+            if (o.getGheId() != null && o.getGiaOverride() != null) {
+                overridePriceCache.put(o.getGheId(), o.getGiaOverride().longValue());
+            }
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 }

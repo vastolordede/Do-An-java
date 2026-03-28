@@ -9,7 +9,7 @@ public class DBConnection {
     private static final String URL =
         "jdbc:postgresql://localhost:5432/flightbooking";
     private static final String USER = "postgres";
-    private static final String PASS = "123456"; // đổi theo máy bạn
+    private static final String PASS = "N241206h@"; // đổi theo máy bạn
 
     static {
         try {

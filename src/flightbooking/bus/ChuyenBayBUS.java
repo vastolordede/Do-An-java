@@ -21,6 +21,14 @@ public class ChuyenBayBUS {
 
     public void themChuyenBay(ChuyenBayDTO x) {
         try {
+            if (dao.existsChuyenBay(
+                x.getTuyenBayId(),
+                x.getGioKhoiHanh(),
+                x.getMayBayId()
+        )) {
+            throw new RuntimeException("Chuyến bay đã tồn tại.");
+        }
+        
             dao.insert(x); // data thật
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi themChuyenBay: " + e.getMessage(), e);
@@ -29,6 +37,14 @@ public class ChuyenBayBUS {
 
     public void capNhatChuyenBay(ChuyenBayDTO x) {
         try {
+            if (dao.existsChuyenBay(
+                x.getTuyenBayId(),
+                x.getGioKhoiHanh(),
+                x.getMayBayId()
+        )) {
+            throw new RuntimeException("Chuyến bay đã tồn tại.");
+        }
+        
             dao.update(x); // data thật
         } catch (SQLException e) {
             throw new RuntimeException("Lỗi capNhatChuyenBay: " + e.getMessage(), e);

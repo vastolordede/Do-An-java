@@ -263,95 +263,87 @@ if (gd != null) {
     }
 
     private void add() {
-    Item tuyen = (Item) cbTuyenBay.getSelectedItem();
-    MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
-    if (tuyen == null || mb == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay và máy bay.");
-        return;
+        Item tuyen = (Item) cbTuyenBay.getSelectedItem();
+        MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
+        HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
+        
+        if (tuyen == null || mb == null || hhk == null) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn đầy đủ thông tin.");
+            return;
+        }
+
+        ChuyenBayDTO c = new ChuyenBayDTO();
+        c.setTuyenBayId(tuyen.id);
+
+c.setHangHangKhongId(hhk.id);
+        c.setMayBayId(mb.id);
+
+        LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
+        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        
+
+LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
+        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        c.setGioKhoiHanh(gkh);
+        c.setGioDen(gd);
+        c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+
+        if (gkh.isAfter(gd)) {
+            JOptionPane.showMessageDialog(this, "Giờ khởi hành phải trước giờ đến.");
+            return;
+        }
+
+        if (gkh.isEqual(gd)) {
+            JOptionPane.showMessageDialog(this, "Giờ khởi hành và giờ đến không được trùng nhau.");
+            return;
+        }
+
+        try {
+            chuyenBayBUS.themChuyenBay(c);
+            reload();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
     }
-
-    ChuyenBayDTO c = new ChuyenBayDTO();
-    c.setTuyenBayId(tuyen.id);
-
-    HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
-    if (hhk == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn hãng hàng không.");
-        return;
-    }
-
-    c.setHangHangKhongId(hhk.id);
-    c.setMayBayId(mb.id);
-
-    LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
-            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-    LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
-            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-    try {
-        validateChuyenBayTime(gkh, gd);
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
-        return;
-    }
-
-    c.setGioKhoiHanh(gkh);
-    c.setGioDen(gd);
-    c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-
-    chuyenBayBUS.themChuyenBay(c);
-    reload();
-}
 
     private void update() {
-    int row = table.getSelectedRow();
-    if (row < 0) {
-        JOptionPane.showMessageDialog(this, "Chọn 1 chuyến bay để sửa.");
-        return;
-    }
+        int row = table.getSelectedRow();
+        if (row < 0) return;
 
-    Item tuyen = (Item) cbTuyenBay.getSelectedItem();
-    MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
-    if (tuyen == null || mb == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn tuyến bay và máy bay.");
-        return;
-    }
-
-    int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
-
-    ChuyenBayDTO c = new ChuyenBayDTO();
-    c.setChuyenBayId(id);
-    c.setTuyenBayId(tuyen.id);
-
-    HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
-    if (hhk == null) {
-        JOptionPane.showMessageDialog(this, "Vui lòng chọn hãng hàng không.");
-        return;
-    }
-
-    c.setHangHangKhongId(hhk.id);
-    c.setMayBayId(mb.id);
-
-    LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
-            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-    LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
-            .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
-
-    try {
-        validateChuyenBayTime(gkh, gd);
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
-        return;
-    }
-
-    c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-    c.setGioKhoiHanh(gkh);
-    c.setGioDen(gd);
-
-    chuyenBayBUS.capNhatChuyenBay(c);
-    reload();
+        Item tuyen = (Item) cbTuyenBay.getSelectedItem();
+        MayBayItem mb = (MayBayItem) cbMayBay.getSelectedItem();
+        HHKItem hhk = (HHKItem) cbHangHK.getSelectedItem();
+        if (tuyen == null || mb == null || hhk == null) {
+    JOptionPane.showMessageDialog(this, "Vui lòng chọn đầy đủ thông tin.");
+    return;
 }
+
+        int id = Integer.parseInt(String.valueOf(model.getValueAt(row, 0)));
+
+        ChuyenBayDTO c = new ChuyenBayDTO();
+        c.setChuyenBayId(id);
+        c.setTuyenBayId(tuyen.id);
+
+c.setHangHangKhongId(hhk.id);
+        c.setMayBayId(mb.id);
+
+        LocalDateTime gkh = ((java.util.Date) spGioKhoiHanh.getValue())
+        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+
+LocalDateTime gd = ((java.util.Date) spGioDen.getValue())
+        .toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        c.setTrangThai(cbTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+
+        c.setGioKhoiHanh(gkh);   // 🔥 THIẾU
+c.setGioDen(gd);
+
+        try {
+            chuyenBayBUS.capNhatChuyenBay(c);
+            reload();
+        } catch (RuntimeException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
 
     private void delete() {
         int row = table.getSelectedRow();
@@ -483,7 +475,6 @@ if (gd != null) {
 }
 private void openSeatMap() {
     int row = table.getSelectedRow();
-
     if (row < 0) {
         JOptionPane.showMessageDialog(this, "Chọn chuyến bay trước.");
         return;
@@ -491,7 +482,7 @@ private void openSeatMap() {
 
     int chuyenBayId = (Integer) model.getValueAt(row, 0);
     ChuyenBayDTO dto = chuyenBayBUS.findById(chuyenBayId);
-    
+
     if (dto == null || dto.getMayBayId() == null) {
         JOptionPane.showMessageDialog(this, "Chuyến bay chưa gán máy bay.");
         return;
@@ -505,19 +496,29 @@ private void openSeatMap() {
             Dialog.ModalityType.APPLICATION_MODAL
     );
 
-    // --- PHẦN CHỈNH SỬA ĐỂ FULL MÀN HÌNH ---
-    // Lấy kích thước màn hình (trừ đi thanh Taskbar)
     Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     d.setSize(screenSize.width, screenSize.height);
-    
-    // Đặt vị trí ở góc trên cùng bên trái
     d.setLocation(0, 0);
-    
-    // Cho phép người dùng thay đổi kích thước/thu nhỏ nếu muốn
-    d.setResizable(true); 
-    // ---------------------------------------
+    d.setResizable(true);
+    d.setLayout(new BorderLayout());
 
-    d.add(new SeatMapPanel(chuyenBayId, mayBayId));
+    // Wrapper để có thể swap SeatMapPanel
+    JPanel wrapper = new JPanel(new BorderLayout());
+    wrapper.add(new SeatMapPanel(chuyenBayId, mayBayId), BorderLayout.CENTER);
+
+    JButton btnReloadSeat = new JButton("🔄 Reload sơ đồ ghế");
+    btnReloadSeat.addActionListener(e -> {
+        wrapper.removeAll();
+        wrapper.add(new SeatMapPanel(chuyenBayId, mayBayId), BorderLayout.CENTER);
+        wrapper.revalidate();
+        wrapper.repaint();
+    });
+
+    JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    south.add(btnReloadSeat);
+
+    d.add(wrapper, BorderLayout.CENTER);
+    d.add(south, BorderLayout.SOUTH);
 
     d.setVisible(true);
 }
