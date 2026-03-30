@@ -40,6 +40,14 @@ public class PnlQuanLyVe extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(buildTop(), BorderLayout.NORTH);
         add(buildCenter(), BorderLayout.CENTER);
+
+        // THÊM DÒNG NÀY ĐỂ BẮT SỰ KIỆN CLICK HÀNG
+    table.getSelectionModel().addListSelectionListener(e -> {
+        if (!e.getValueIsAdjusting()) { // Chỉ chạy khi việc chọn đã hoàn tất
+            fillForm();
+        }
+    });
+    
         loadData();
     }
 
@@ -178,4 +186,23 @@ public class PnlQuanLyVe extends JPanel {
     private JLabel makeLabel(String text) {
         JLabel lb = new JLabel(text); lb.setFont(lb.getFont().deriveFont(Font.PLAIN, 13f)); return lb;
     }
+
+    private void fillForm() {
+    int row = table.getSelectedRow();
+    if (row < 0 || row >= currentData.size()) return;
+
+    VeDTO v = currentData.get(row);
+    
+    // Đổ dữ liệu vào các field
+    txtChuyenBayId.setText(String.valueOf(v.getChuyenBayId()));
+    txtHoTen.setText(v.getHoTenHanhKhach());
+    txtSoGiayTo.setText(v.getSoGiayTo());
+
+    // Xử lý ComboBox Trạng thái
+    if (v.isDaHuy()) {
+        cbTrangThai.setSelectedIndex(2); // "Đã hủy"
+    } else {
+        cbTrangThai.setSelectedIndex(1); // "Đang hiệu lực"
+    }
+}
 }

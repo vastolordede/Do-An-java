@@ -396,9 +396,10 @@ public class AdminTheme {
         field.setBackground(BG_WHITE);
         field.setForeground(TEXT_DARK);
         field.setCaretColor(TEXT_DARK);
+        // Sử dụng Insets nhỏ hơn cho RoundedBorder
         field.setBorder(BorderFactory.createCompoundBorder(
-            new RoundedBorder(15, BORDER_BLACK),
-            BorderFactory.createEmptyBorder(5, 12, 5, 12)
+            new RoundedBorder(15, BORDER_BLACK), 
+            BorderFactory.createEmptyBorder(2, 5, 2, 5) // Giảm padding bên trong xuống
         ));
     }
 
@@ -432,10 +433,11 @@ public class AdminTheme {
         }
 
         public Insets getBorderInsets(Component c) {
-            return new Insets(this.radius + 1, this.radius + 1, this.radius + 2, this.radius);
+            // QUAN TRỌNG: Trả về Insets nhỏ để không chiếm không gian của Text
+            return new Insets(1, 1, 1, 1); 
         }
 
-        public boolean isBorderOpaque() { return true; }
+        public boolean isBorderOpaque() { return false; } // Đổi thành false để tránh lỗi vẽ đè
 
         public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
             Graphics2D g2 = (Graphics2D) g.create();
