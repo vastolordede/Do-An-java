@@ -8,6 +8,7 @@ import flightbooking.dto.ChucVuDTO;
 import flightbooking.dto.NhanVienDTO;
 import flightbooking.dto.PhongBanDTO;
 import flightbooking.dto.QuyenDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -78,7 +79,8 @@ private final JSpinner spNgayNghi = new JSpinner(new SpinnerDateModel());
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
         add(buildForm(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
 
         table.setRowHeight(25);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -106,6 +108,18 @@ spNgayNghi.setEditor(new JSpinner.DateEditor(spNgayNghi, "yyyy-MM-dd"));
 
     private JPanel buildForm() {
     JPanel form = new JPanel(new GridBagLayout());
+    form.setOpaque(false);
+
+AdminTheme.styleSoftTextField(txtHoTen);
+AdminTheme.styleSoftTextField(txtEmail);
+AdminTheme.styleSoftTextField(txtDienThoai);
+AdminTheme.styleSoftTextField(txtLuong);
+AdminTheme.styleSoftSpinner(spNgayVaoLam);
+AdminTheme.styleSoftSpinner(spNgayNghi);
+AdminTheme.styleSoftComboBox(cbPhongBan);
+AdminTheme.styleSoftComboBox(cbChucVu);
+AdminTheme.styleSoftComboBox(cbTrangThai);
+AdminTheme.styleSoftTextField(txtQuyen);
     form.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
     GridBagConstraints lc = new GridBagConstraints();
@@ -149,11 +163,7 @@ addFormRow(form, lc, fc, 1, 4, "Ngày nghỉ", spNgayNghi);
     fc.gridwidth = 1;
 
     // Style các field
-    for (JTextField f : new JTextField[]{
-        txtHoTen, txtEmail, txtDienThoai, txtLuong
-}) {
-    styleField(f);
-}
+   
 
     btnAdd    = new JButton("Thêm");
     btnUpdate = new JButton("Sửa");
@@ -178,10 +188,8 @@ btnExport.addActionListener(e -> {
 actions.add(btnExport);
 actions.add(btnImport);
 
-    JPanel wrap = new JPanel(new BorderLayout(0, 8));
-    wrap.add(form, BorderLayout.CENTER);
-    wrap.add(actions, BorderLayout.SOUTH);
-    return wrap;
+    return AdminTheme.wrapFormCard(form, btnClear, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+    
 }
 
 // Helper: thêm 1 cặp label + field vào đúng ô
@@ -211,6 +219,7 @@ private void styleField(JTextField field) {
 
     private JPanel buildPermissionBox() {
         JPanel p = new JPanel(new BorderLayout(5, 0));
+        p.setOpaque(false);
         p.add(txtQuyen, BorderLayout.CENTER);
         p.add(btnPhanQuyen, BorderLayout.EAST);
         return p;

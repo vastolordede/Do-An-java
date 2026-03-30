@@ -2,6 +2,7 @@ package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.QuanLyVeBUS;
 import flightbooking.dto.VeDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 
@@ -49,25 +50,31 @@ public class PnlQuanLyVe extends JPanel {
 
     private JComponent buildTop() {
         JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+
+AdminTheme.styleSoftTextField(txtChuyenBayId);
+AdminTheme.styleSoftTextField(txtHoTen);
+AdminTheme.styleSoftTextField(txtSoGiayTo);
+AdminTheme.styleSoftComboBox(cbTrangThai);
         GridBagConstraints lc = makeLc();
         GridBagConstraints fc = makeFc();
 
         lc.gridx = 0; lc.gridy = 0;
         form.add(makeLabel("Chuyến bay ID"), lc);
         fc.gridx = 1; fc.gridy = 0;
-        styleField(txtChuyenBayId);
+        
         form.add(txtChuyenBayId, fc);
 
         lc.gridx = 2; lc.gridy = 0;
         form.add(makeLabel("Họ tên"), lc);
         fc.gridx = 3; fc.gridy = 0;
-        styleField(txtHoTen);
+        
         form.add(txtHoTen, fc);
 
         lc.gridx = 4; lc.gridy = 0;
         form.add(makeLabel("Số giấy tờ"), lc);
         fc.gridx = 5; fc.gridy = 0;
-        styleField(txtSoGiayTo);
+       
         form.add(txtSoGiayTo, fc);
 
         lc.gridx = 0; lc.gridy = 1;
@@ -93,11 +100,7 @@ public class PnlQuanLyVe extends JPanel {
         actions.add(btnHuyVe);
         actions.add(btnExport);
 
-        JPanel wrap = new JPanel(new BorderLayout(0, 8));
-        wrap.add(form, BorderLayout.CENTER);
-        wrap.add(actions, BorderLayout.SOUTH);
-
-        return wrap;
+        return AdminTheme.wrapFormCard(form, btnLoc, btnLamMoi, btnHuyVe, btnExport);
     }
 
     private JComponent buildCenter() {
@@ -154,7 +157,8 @@ public class PnlQuanLyVe extends JPanel {
             }
         });
 
-        return new JScrollPane(table);
+        AdminTheme.styleTable(table, true);
+return AdminTheme.wrapTable(table);
     }
 
     private void loadData() {

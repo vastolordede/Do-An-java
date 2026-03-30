@@ -4,6 +4,7 @@ import flightbooking.bus.SanBayBUS;
 import flightbooking.bus.TuyenBayBUS;
 import flightbooking.dto.SanBayDTO;
 import flightbooking.dto.TuyenBayDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -39,7 +40,8 @@ public class PnlQuanLyTuyenBay extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(buildForm(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
 
         loadSanBayToCombo();
         reload();
@@ -49,6 +51,10 @@ public class PnlQuanLyTuyenBay extends JPanel {
 
     private JPanel buildForm() {
     JPanel form = new JPanel(new GridBagLayout());
+    form.setOpaque(false);
+    AdminTheme.styleSoftComboBox(cbSanBayDi);
+AdminTheme.styleSoftComboBox(cbSanBayDen);
+AdminTheme.styleSoftSpinner(spSoDam);   
     GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
 
     lc.gridx=0; lc.gridy=0; form.add(makeLabel("Sân bay đi"), lc);
@@ -76,7 +82,7 @@ btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
 
-return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void loadSanBayToCombo() {

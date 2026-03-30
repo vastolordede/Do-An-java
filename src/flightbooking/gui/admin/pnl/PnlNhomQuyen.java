@@ -6,6 +6,7 @@ import flightbooking.dao.QuyenDAO;
 import flightbooking.dao.QuyenActionDAO;
 import flightbooking.dto.NhomQuyenDTO;
 import flightbooking.dto.QuyenDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.dto.QuyenActionDTO;
 import flightbooking.util.Validator;
@@ -57,11 +58,15 @@ public class PnlNhomQuyen extends JPanel {
 
         model = new DefaultTableModel(new Object[]{"ID", "Tên"}, 0);
         tbl = new JTable(model);
-        tbl.setPreferredScrollableViewportSize(new Dimension(250, 0));
-        add(new JScrollPane(tbl), BorderLayout.WEST);
+tbl.setPreferredScrollableViewportSize(new Dimension(250, 0));
+AdminTheme.styleTable(tbl, false);
+add(AdminTheme.wrapTable(tbl), BorderLayout.WEST);
 
-        pnlCheck.setLayout(new BoxLayout(pnlCheck, BoxLayout.Y_AXIS));
-        add(new JScrollPane(pnlCheck), BorderLayout.CENTER);
+pnlCheck.setLayout(new BoxLayout(pnlCheck, BoxLayout.Y_AXIS));
+JScrollPane spCheck = new JScrollPane(pnlCheck);
+spCheck.setBorder(null);
+spCheck.setViewportBorder(null);
+add(spCheck, BorderLayout.CENTER);
 
         loadActionMap(); // 🔥 load action từ DB
         loadQuyen();
@@ -76,7 +81,7 @@ public class PnlNhomQuyen extends JPanel {
 
         lc.gridx=0; lc.gridy=0; form.add(makeLabel("Tên nhóm quyền"), lc);
         fc.gridx=1; fc.gridy=0; fc.gridwidth=3;
-        styleField(txtTen); form.add(txtTen, fc);
+        AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
         fc.gridwidth=1;
 
         btnSave   = new JButton("Tạo");
@@ -87,7 +92,7 @@ public class PnlNhomQuyen extends JPanel {
         btnUpdate.addActionListener(e -> update());
         btnDelete.addActionListener(e -> delete());
 
-        return wrapWithActions(form, btnSave, btnUpdate, btnDelete);
+        return AdminTheme.wrapFormCard(form, btnSave, btnUpdate, btnDelete);
     }
 
     // Thêm các helper vào PnlNhomQuyen

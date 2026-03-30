@@ -16,6 +16,7 @@ import flightbooking.util.Permission;
 import flightbooking.util.SessionContext;
 import flightbooking.gui.admin.pnl.PnlQuanLyVe;
 import flightbooking.gui.admin.pnl.PnlThongKe;
+import flightbooking.gui.admin.theme.AdminTheme;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,6 +28,7 @@ public class FrmQuanTri extends JFrame {
     private final AppNavigator nav = new AppNavigator();
 
     public FrmQuanTri() {
+         AdminTheme.apply();
         setTitle("Quản trị - FlightBooking");
         setSize(1100, 720);
         setLocationRelativeTo(null);
@@ -137,6 +139,8 @@ System.out.println("✅ ThongKe OK");
 
         JPanel sidebar = buildSidebar();
         JPanel content = nav.getRoot();
+        content.setBackground(AdminTheme.CONTENT_BG);
+        
 
         
         
@@ -144,6 +148,9 @@ System.out.println("✅ ThongKe OK");
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, sidebar, content);
 split.setDividerLocation(240);
 split.setOneTouchExpandable(true);
+split.setBorder(null);
+split.getLeftComponent().setBackground(AdminTheme.SIDEBAR_BG);
+split.getRightComponent().setBackground(AdminTheme.CONTENT_BG);
 
 // 🔥 WRAP lại để thêm header
 JPanel root = new JPanel(new BorderLayout());
@@ -151,98 +158,95 @@ root.add(buildHeader(), BorderLayout.NORTH); // 👈 thêm dòng này
 root.add(split, BorderLayout.CENTER);
 
 setContentPane(root);
+AdminTheme.styleActionButtonsRecursively(root);
+SwingUtilities.updateComponentTreeUI(this);
     }
 
     private JPanel buildSidebar() {
-        int nhomId = SessionContext.getAdminNhomQuyenId();
-        boolean isAdmin = (nhomId == 1);
+    int nhomId = SessionContext.getAdminNhomQuyenId();
+    boolean isAdmin = (nhomId == 1);
 
-        JPanel p = new JPanel();
-        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-        p.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    JPanel p = new JPanel();
+    p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    p.setBorder(BorderFactory.createEmptyBorder(14, 12, 14, 12));
+    p.setBackground(AdminTheme.SIDEBAR_BG);
+    p.setPreferredSize(new Dimension(240, 0));
 
-        JLabel title = new JLabel("ADMIN MENU");
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 16f));
-        title.setAlignmentX(Component.LEFT_ALIGNMENT);
+    JLabel title = new JLabel("ADMIN MENU");
+    title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+    title.setForeground(Color.WHITE);
+    title.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        JButton btnMayBay    = new JButton("Quản lý Máy bay");
-        JButton btnSanBay    = new JButton("Quản lý Sân bay");
-        JButton btnTuyenBay  = new JButton("Quản lý Tuyến bay");
-        JButton btnChuyenBay = new JButton("Quản lý Chuyến bay");
-        JButton btnHHK       = new JButton("Quản lý Hãng hàng không");
-        JButton btnDatVe     = new JButton("Đặt vé (quầy)");
-        JButton btnQuanLyVe = new JButton("Quản lý vé");
-        JButton btnThongKe = new JButton("Thống kê");
-        JButton btnNhanVien  = new JButton("Quản lý nhân viên");
-        JButton btnNhomQuyen = new JButton("Quản lý nhóm quyền");
+    JButton btnMayBay    = AdminTheme.createSidebarButton("Quản lý Máy bay");
+    JButton btnSanBay    = AdminTheme.createSidebarButton("Quản lý Sân bay");
+    JButton btnTuyenBay  = AdminTheme.createSidebarButton("Quản lý Tuyến bay");
+    JButton btnChuyenBay = AdminTheme.createSidebarButton("Quản lý Chuyến bay");
+    JButton btnHHK       = AdminTheme.createSidebarButton("Quản lý Hãng hàng không");
+    JButton btnDatVe     = AdminTheme.createSidebarButton("Đặt vé (quầy)");
+    JButton btnQuanLyVe  = AdminTheme.createSidebarButton("Quản lý vé");
+    JButton btnThongKe   = AdminTheme.createSidebarButton("Thống kê");
+    JButton btnNhanVien  = AdminTheme.createSidebarButton("Quản lý nhân viên");
+    JButton btnNhomQuyen = AdminTheme.createSidebarButton("Quản lý nhóm quyền");
 
-        JButton[] buttons = {
-    btnSanBay, btnTuyenBay, btnChuyenBay,
-    btnDatVe, btnQuanLyVe, btnThongKe, btnHHK, btnMayBay, btnNhanVien, btnNhomQuyen
-};
+    p.add(title);
+    p.add(Box.createVerticalStrut(16));
 
-        for (JButton b : buttons) {
-            b.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-            b.setAlignmentX(Component.LEFT_ALIGNMENT);
-        }
-
-        p.add(title);
-        p.add(Box.createVerticalStrut(12));
-
-        if (isAdmin || AuthUtil.hasPermission(Permission.SAN_BAY)) {
-            p.add(btnSanBay);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.TUYEN_BAY)) {
-            p.add(btnTuyenBay);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
-    p.add(btnQuanLyVe);
-    p.add(Box.createVerticalStrut(8));
-}
-if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
-    p.add(btnThongKe);
-    p.add(Box.createVerticalStrut(8));
-}
-        if (isAdmin || AuthUtil.hasPermission(Permission.CHUYEN_BAY)) {
-            p.add(btnChuyenBay);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.DAT_VE_ADMIN)) {
-            p.add(btnDatVe);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.HANG_HANG_KHONG)) {
-            p.add(btnHHK);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.MAY_BAY)) {
-            p.add(btnMayBay);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.NHAN_VIEN)) {
-            p.add(btnNhanVien);
-            p.add(Box.createVerticalStrut(8));
-        }
-        if (isAdmin || AuthUtil.hasPermission(Permission.NHOM_QUYEN)) {
-            p.add(btnNhomQuyen);
-            p.add(Box.createVerticalStrut(8));
-        }
-
-        btnMayBay.addActionListener(e    -> nav.show("MAY_BAY"));
-        btnSanBay.addActionListener(e    -> nav.show("SAN_BAY"));
-        btnTuyenBay.addActionListener(e  -> nav.show("TUYEN_BAY"));
-        btnChuyenBay.addActionListener(e -> nav.show("CHUYEN_BAY"));
-        btnHHK.addActionListener(e       -> nav.show("HANG_HANG_KHONG"));
-        btnDatVe.addActionListener(e     -> nav.show("DAT_VE_ADMIN"));
-        btnQuanLyVe.addActionListener(e -> nav.show("QUAN_LY_VE"));
-        btnNhanVien.addActionListener(e  -> nav.show("NHAN_VIEN"));
-        btnNhomQuyen.addActionListener(e -> nav.show("NHOM_QUYEN"));
-        btnThongKe.addActionListener(e -> nav.show("THONG_KE"));
-
-        return p;
+    if (isAdmin || AuthUtil.hasPermission(Permission.SAN_BAY)) {
+        p.add(btnSanBay);
+        p.add(Box.createVerticalStrut(8));
     }
+    if (isAdmin || AuthUtil.hasPermission(Permission.TUYEN_BAY)) {
+        p.add(btnTuyenBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
+        p.add(btnQuanLyVe);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
+        p.add(btnThongKe);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.CHUYEN_BAY)) {
+        p.add(btnChuyenBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.DAT_VE_ADMIN)) {
+        p.add(btnDatVe);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.HANG_HANG_KHONG)) {
+        p.add(btnHHK);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.MAY_BAY)) {
+        p.add(btnMayBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.NHAN_VIEN)) {
+        p.add(btnNhanVien);
+        p.add(Box.createVerticalStrut(8));
+    }
+    if (isAdmin || AuthUtil.hasPermission(Permission.NHOM_QUYEN)) {
+        p.add(btnNhomQuyen);
+        p.add(Box.createVerticalStrut(8));
+    }
+
+    p.add(Box.createVerticalGlue());
+
+    btnMayBay.addActionListener(e    -> nav.show("MAY_BAY"));
+    btnSanBay.addActionListener(e    -> nav.show("SAN_BAY"));
+    btnTuyenBay.addActionListener(e  -> nav.show("TUYEN_BAY"));
+    btnChuyenBay.addActionListener(e -> nav.show("CHUYEN_BAY"));
+    btnHHK.addActionListener(e       -> nav.show("HANG_HANG_KHONG"));
+    btnDatVe.addActionListener(e     -> nav.show("DAT_VE_ADMIN"));
+    btnQuanLyVe.addActionListener(e  -> nav.show("QUAN_LY_VE"));
+    btnNhanVien.addActionListener(e  -> nav.show("NHAN_VIEN"));
+    btnNhomQuyen.addActionListener(e -> nav.show("NHOM_QUYEN"));
+    btnThongKe.addActionListener(e   -> nav.show("THONG_KE"));
+
+    return p;
+}
 
     private void showEmptyScreen() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -259,19 +263,16 @@ if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
     }
 
     private JPanel buildHeader() {
-
     JPanel header = new JPanel(new BorderLayout());
-    header.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-    header.setBackground(new Color(245, 245, 245));
+    header.setBorder(BorderFactory.createEmptyBorder(10, 14, 10, 14));
+    header.setBackground(AdminTheme.HEADER_BG);
 
-    // 👤 Xin chào
     String username = SessionContext.getAdminUsername();
     JLabel lblHello = new JLabel("Xin chào, " + username);
-    lblHello.setFont(new Font("Arial", Font.BOLD, 14));
+    lblHello.setFont(new Font("Segoe UI", Font.BOLD, 15));
+    lblHello.setForeground(Color.WHITE);
 
-    // 🔴 Nút logout
-    JButton btnLogout = new JButton("Đăng xuất");
-
+    JButton btnLogout = AdminTheme.createHeaderButton("Đăng xuất");
     btnLogout.addActionListener(e -> {
         int confirm = JOptionPane.showConfirmDialog(
                 this,
@@ -281,29 +282,22 @@ if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
         );
 
         if (confirm == JOptionPane.YES_OPTION) {
-            SessionContext.clearAll(); // 🔥 clear session
-
-            dispose(); // đóng admin
-
-            new FrmDangNhapNhanVien().setVisible(true); // quay lại login
+            SessionContext.clearAll();
+            dispose();
+            new FrmDangNhapNhanVien().setVisible(true);
         }
     });
 
-    JButton btnChangePass = new JButton("Đổi mật khẩu");
+    JButton btnChangePass = AdminTheme.createHeaderButton("Đổi mật khẩu");
+    btnChangePass.addActionListener(e -> new FrmDoiMatKhau().setVisible(true));
 
-btnChangePass.addActionListener(e -> {
-    new FrmDoiMatKhau().setVisible(true);
-});
+    JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+    right.setOpaque(false);
+    right.add(btnChangePass);
+    right.add(btnLogout);
 
-// 👉 panel chứa button bên phải
-JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-right.setOpaque(false);
-
-right.add(btnChangePass);
-right.add(btnLogout);
-
-header.add(lblHello, BorderLayout.WEST);
-header.add(right, BorderLayout.EAST);
+    header.add(lblHello, BorderLayout.WEST);
+    header.add(right, BorderLayout.EAST);
 
     return header;
 }

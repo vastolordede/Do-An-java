@@ -2,6 +2,7 @@ package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.HangHangKhongBUS;
 import flightbooking.dto.HangHangKhongDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -33,7 +34,8 @@ public class PnlQuanLyHHK extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(buildTop(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
         table.getSelectionModel().addListSelectionListener(e -> fillForm());
         reload();
     }
@@ -43,7 +45,7 @@ public class PnlQuanLyHHK extends JPanel {
     GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
 
     lc.gridx=0; lc.gridy=0; form.add(makeLabel("Tên hãng hàng không"), lc);
-    fc.gridx=1; fc.gridy=0; styleField(txtTen); form.add(txtTen, fc);
+    fc.gridx=1; fc.gridy=0; AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
 
     btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
     btnReload = new JButton("Làm mới");
@@ -60,7 +62,7 @@ btnExport.addActionListener(e -> {
     btnImport.addActionListener(e -> {
         ExcelImporter.importToTable(table, this);
     });
-    return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+    return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void reload() {

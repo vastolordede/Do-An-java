@@ -17,6 +17,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import flightbooking.util.ValidationUtil;
+import flightbooking.gui.admin.theme.AdminTheme;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -43,8 +44,8 @@ private JTable tableVe;
 private DefaultTableModel modelVe;
 
 
-    private final JTextField txtHoTen = new JTextField();
-    private final JTextField txtSoGiayTo = new JTextField();
+    private final AdminTheme.RoundedTextField txtHoTen = new AdminTheme.RoundedTextField();
+    private final AdminTheme.RoundedTextField txtSoGiayTo = new AdminTheme.RoundedTextField();
 
     private final JComboBox<String> cbPay = new JComboBox<>(new String[]{"cash", "card"});
     private List<ThongTinVeDTO> currentVeData = new ArrayList<>();
@@ -109,9 +110,10 @@ private DefaultTableModel modelVe;
         }
     });
 
-    loadVeNhanVien();
-
-    return new JScrollPane(tableVe);
+    AdminTheme.styleTable(tableVe, true);
+JScrollPane sp = AdminTheme.wrapTable(tableVe);
+loadVeNhanVien();
+return sp;
 }
 
 private void loadVeNhanVien() {
@@ -142,6 +144,13 @@ private void loadVeNhanVien() {
 
     private JPanel buildForm() {
     JPanel form = new JPanel(new GridBagLayout());
+    form.setOpaque(false);
+
+AdminTheme.styleSoftComboBox(cbChuyen);
+AdminTheme.styleSoftTextField(txtHoTen);
+AdminTheme.styleSoftTextField(txtSoGiayTo);
+AdminTheme.styleSoftComboBox(cbPay);
+AdminTheme.styleActionButton(btnChonGhe = new JButton("Chọn ghế"), AdminTheme.ButtonRole.NEUTRAL);
     GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
 
     lc.gridx=0; lc.gridy=0; form.add(makeLabel("Chuyến bay"), lc);
@@ -151,6 +160,7 @@ private void loadVeNhanVien() {
 form.add(makeLabel("Ghế"), lc);
 
 btnChonGhe = new JButton("Chọn ghế");
+AdminTheme.styleActionButton(btnChonGhe, AdminTheme.ButtonRole.NEUTRAL);
 btnChonGhe.addActionListener(e -> openSeatMapPopup());
 
 JPanel ghePanel = new JPanel(new BorderLayout());
@@ -161,13 +171,13 @@ fc.gridx=3; fc.gridy=0;
 form.add(ghePanel, fc);
 
     lc.gridx=0; lc.gridy=1; form.add(makeLabel("Họ tên hành khách"), lc);
-    fc.gridx=1; fc.gridy=1; styleField(txtHoTen); form.add(txtHoTen, fc);
+    fc.gridx=1; fc.gridy=1; AdminTheme.styleSoftTextField(txtHoTen); form.add(txtHoTen, fc);
 
     lc.gridx=2; lc.gridy=1; form.add(makeLabel("Số giấy tờ"), lc);
-    fc.gridx=3; fc.gridy=1; styleField(txtSoGiayTo); form.add(txtSoGiayTo, fc);
+    fc.gridx=3; fc.gridy=1; AdminTheme.styleSoftTextField(txtSoGiayTo); form.add(txtSoGiayTo, fc);
 
     lc.gridx=4; lc.gridy=1; form.add(makeLabel("Thanh toán"), lc);
-    fc.gridx=5; fc.gridy=1; form.add(cbPay, fc);
+    fc.gridx=5; fc.gridy=1; AdminTheme.styleSoftComboBox(cbPay); form.add(cbPay, fc);
 
 btnReload = new JButton("Làm mới");
 btnReload.addActionListener(e -> reloadData());
@@ -185,7 +195,7 @@ btnImport.addActionListener(e -> {
     btnTaoVe = new JButton("Tạo vé");
     btnTaoVe.addActionListener(e -> taoVe());
 
-    return wrapWithActions(form, btnReload, btnTaoVe, btnExport, btnImport);
+    return AdminTheme.wrapFormCard(form, btnReload, btnTaoVe, btnExport, btnImport);
 }
 
     private void loadChuyenBay() {

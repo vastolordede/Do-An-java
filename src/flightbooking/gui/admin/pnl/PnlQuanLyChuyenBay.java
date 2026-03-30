@@ -10,6 +10,7 @@ import flightbooking.dto.GiaHangChuyenBayDTO;
 import flightbooking.dto.HangHangKhongDTO;
 import flightbooking.dto.MayBayDTO;
 import flightbooking.dto.TuyenBayDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -75,7 +76,8 @@ private final JSpinner spGioDen = new JSpinner(new SpinnerDateModel());
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(buildForm(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
 
         loadTuyenBayToCombo();
         loadMayBayToCombo();
@@ -91,6 +93,14 @@ private final JSpinner spGioDen = new JSpinner(new SpinnerDateModel());
 
     private JPanel buildForm() {
         JPanel form = new JPanel(new GridLayout(3, 4, 10, 10));
+        form.setOpaque(false);
+
+AdminTheme.styleSoftComboBox(cbTuyenBay);
+AdminTheme.styleSoftComboBox(cbHangHK);
+AdminTheme.styleSoftComboBox(cbMayBay);
+AdminTheme.styleSoftSpinner(spGioKhoiHanh);
+AdminTheme.styleSoftSpinner(spGioDen);
+AdminTheme.styleSoftComboBox(cbTrangThai);
 
         form.add(new JLabel("Tuyến bay"));
         form.add(cbTuyenBay);
@@ -140,8 +150,7 @@ btnImport.addActionListener(e -> {
 
 btnGiaHang.addActionListener(e -> openGiaHangDialog());
 
-        JPanel wrap = new JPanel(new BorderLayout(10, 10));
-        wrap.add(form, BorderLayout.CENTER);
+        
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actions.add(btnReload);
@@ -158,9 +167,12 @@ btnExport.addActionListener(e -> {
 
 actions.add(btnExport);
 actions.add(btnImport);
-
-        wrap.add(actions, BorderLayout.SOUTH);
-        return wrap;
+return AdminTheme.wrapFormCard(
+        form,
+        btnReload, btnAdd, btnUpdate, btnDelete,
+        btnGiaHang, btnSeatMap, btnExport, btnImport
+);
+       
     }
 private void validateChuyenBayTime(LocalDateTime gkh, LocalDateTime gd) {
     ValidationUtil.validateDateTimeOrder(gkh, gd, "Giờ khởi hành", "Giờ đến");

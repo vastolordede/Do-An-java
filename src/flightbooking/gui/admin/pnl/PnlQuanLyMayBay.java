@@ -5,6 +5,7 @@ import flightbooking.bus.MayBayBUS;
 import flightbooking.dao.GheDAO;
 import flightbooking.dto.CauHinhKhoangGheDTO;
 import flightbooking.dto.MayBayDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -50,7 +51,8 @@ public class PnlQuanLyMayBay extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         add(buildTop(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> fillForm());
 
@@ -59,6 +61,10 @@ public class PnlQuanLyMayBay extends JPanel {
 
     private JComponent buildTop() {
         JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+
+AdminTheme.styleSoftTextField(txtTen);
+AdminTheme.styleSoftTextField(txtKieu);
         GridBagConstraints lc = makeLc();
         GridBagConstraints fc = makeFc();
 
@@ -68,7 +74,7 @@ public class PnlQuanLyMayBay extends JPanel {
 
         fc.gridx = 1;
         fc.gridy = 0;
-        styleField(txtTen);
+        
         form.add(txtTen, fc);
 
         lc.gridx = 2;
@@ -77,7 +83,7 @@ public class PnlQuanLyMayBay extends JPanel {
 
         fc.gridx = 3;
         fc.gridy = 0;
-        styleField(txtKieu);
+       
         form.add(txtKieu, fc);
 
         btnAdd = new JButton("Thêm");
@@ -97,7 +103,7 @@ btnReload.addActionListener(e -> reloadData());
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
 
-        return wrapWithActions(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport, btnGen);
+        return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport, btnGen);
     }
 
     private void reload() {

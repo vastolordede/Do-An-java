@@ -2,6 +2,7 @@ package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.SanBayBUS;
 import flightbooking.dto.SanBayDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 import flightbooking.util.ExcelExporter;
 import flightbooking.util.ExcelImporter;
@@ -36,7 +37,8 @@ public class PnlQuanLySanBay extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
         add(buildForm(), BorderLayout.NORTH);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> fillForm());
         reload();
@@ -44,16 +46,17 @@ public class PnlQuanLySanBay extends JPanel {
 
     private JPanel buildForm() {
     JPanel form = new JPanel(new GridBagLayout());
+    form.setOpaque(false);
     GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
 
     lc.gridx=0; lc.gridy=0; form.add(makeLabel("Tên sân bay"), lc);
-    fc.gridx=1; fc.gridy=0; styleField(txtTen); form.add(txtTen, fc);
+    fc.gridx=1; fc.gridy=0; AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
 
     lc.gridx=2; lc.gridy=0; form.add(makeLabel("Thành phố"), lc);
-    fc.gridx=3; fc.gridy=0; styleField(txtThanhPho); form.add(txtThanhPho, fc);
+    fc.gridx=3; fc.gridy=0; AdminTheme.styleSoftTextField(txtThanhPho); form.add(txtThanhPho, fc);
 
     lc.gridx=4; lc.gridy=0; form.add(makeLabel("Quốc gia"), lc);
-    fc.gridx=5; fc.gridy=0; styleField(txtQuocGia); form.add(txtQuocGia, fc);
+    fc.gridx=5; fc.gridy=0; AdminTheme.styleSoftTextField(txtQuocGia); form.add(txtQuocGia, fc);
 
     btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
     btnReload = new JButton("Làm mới");
@@ -72,7 +75,7 @@ btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
 
-return wrapWithActions(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
 }
 
     private void reload() {
