@@ -34,7 +34,7 @@ public class PnlNhomQuyen extends JPanel {
     private JButton btnSave;
     private JButton btnUpdate;
     private JButton btnDelete;
-    // map quyền -> action hiển thị
+
     private static final Map<String, String[]> ACTION_MAP = new HashMap<>();
     static {
         ACTION_MAP.put("quản lý sân bay", new String[]{"Thêm", "Sửa", "Xóa", "Xuất Excel", "Nhập Excel"});
@@ -52,23 +52,22 @@ public class PnlNhomQuyen extends JPanel {
     private static final String[] DEFAULT_ACTIONS = {"Thêm", "Sửa", "Xóa"};
 
     public PnlNhomQuyen() {
-
         setLayout(new BorderLayout(10, 10));
         add(buildTop(), BorderLayout.NORTH);
 
         model = new DefaultTableModel(new Object[]{"ID", "Tên"}, 0);
         tbl = new JTable(model);
-tbl.setPreferredScrollableViewportSize(new Dimension(250, 0));
-AdminTheme.styleTable(tbl, false);
-add(AdminTheme.wrapTable(tbl), BorderLayout.WEST);
+        tbl.setPreferredScrollableViewportSize(new Dimension(250, 0));
+        AdminTheme.styleTable(tbl, false);
+        add(AdminTheme.wrapTable(tbl), BorderLayout.WEST);
 
-pnlCheck.setLayout(new BoxLayout(pnlCheck, BoxLayout.Y_AXIS));
-JScrollPane spCheck = new JScrollPane(pnlCheck);
-spCheck.setBorder(null);
-spCheck.setViewportBorder(null);
-add(spCheck, BorderLayout.CENTER);
+        pnlCheck.setLayout(new BoxLayout(pnlCheck, BoxLayout.Y_AXIS));
+        JScrollPane spCheck = new JScrollPane(pnlCheck);
+        spCheck.setBorder(null);
+        spCheck.setViewportBorder(null);
+        add(spCheck, BorderLayout.CENTER);
 
-        loadActionMap(); // 🔥 load action từ DB
+        loadActionMap();
         loadQuyen();
         loadTable();
         bindTable();
@@ -79,14 +78,16 @@ add(spCheck, BorderLayout.CENTER);
         GridBagConstraints lc = makeLc();
         GridBagConstraints fc = makeFc();
 
-        lc.gridx=0; lc.gridy=0; form.add(makeLabel("Tên nhóm quyền"), lc);
-        fc.gridx=1; fc.gridy=0; fc.gridwidth=3;
-        AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
-        fc.gridwidth=1;
+        lc.gridx = 0; lc.gridy = 0; form.add(makeLabel("Tên nhóm quyền"), lc);
+        fc.gridx = 1; fc.gridy = 0; fc.gridwidth = 3;
+        AdminTheme.styleSoftTextField(txtTen);
+        form.add(txtTen, fc);
+        fc.gridwidth = 1;
 
-        btnSave   = new JButton("Tạo");
-        btnUpdate = new JButton("Cập nhật");
-        btnDelete = new JButton("Xóa");
+        // ✅ Dùng createActionButton
+        btnSave   = AdminTheme.createActionButton("Tạo",       AdminTheme.ButtonRole.NEUTRAL);
+        btnUpdate = AdminTheme.createActionButton("Cập nhật",  AdminTheme.ButtonRole.NEUTRAL);
+        btnDelete = AdminTheme.createActionButton("Xóa",       AdminTheme.ButtonRole.NEUTRAL);
 
         btnSave.addActionListener(e -> save());
         btnUpdate.addActionListener(e -> update());
@@ -95,7 +96,6 @@ add(spCheck, BorderLayout.CENTER);
         return AdminTheme.wrapFormCard(form, btnSave, btnUpdate, btnDelete);
     }
 
-    // Thêm các helper vào PnlNhomQuyen
     private GridBagConstraints makeLc() {
         GridBagConstraints lc = new GridBagConstraints();
         lc.anchor = GridBagConstraints.WEST;
@@ -117,110 +117,86 @@ add(spCheck, BorderLayout.CENTER);
         return lb;
     }
 
-    private void styleField(JTextField field) {
-        field.setPreferredSize(new Dimension(200, 30));
-        field.setFont(field.getFont().deriveFont(13f));
-        field.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200)),
-            BorderFactory.createEmptyBorder(3, 8, 3, 8)
-        ));
-    }
-
-    private JPanel wrapWithActions(JPanel form, JButton... buttons) {
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
-        for (JButton b : buttons) actions.add(b);
-        JPanel wrap = new JPanel(new BorderLayout(0, 8));
-        wrap.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-        wrap.add(form, BorderLayout.CENTER);
-        wrap.add(actions, BorderLayout.SOUTH);
-        return wrap;
-    }
-
     private void loadActionMap() {
-    List<QuyenActionDTO> list = new QuyenActionDAO().findAll();
-    for (QuyenActionDTO a : list) {
-        actionMap.put(a.getTenquyen().toLowerCase(), a.getId());
-    }
-}
-
-    private void loadQuyen() {
-
-        List<QuyenDTO> list = new QuyenDAO().findAll();
-
-        for (QuyenDTO q : list) {
-
-            int qid = q.getQuyenId();
-            String tenQuyen = q.getTenQuyen();
-
-            JCheckBox cbCha = new JCheckBox(tenQuyen);
-            cbCha.setFont(cbCha.getFont().deriveFont(Font.BOLD));
-            cbCha.putClientProperty("id", qid);
-            checkBoxes.add(cbCha);
-
-            String[] actions = ACTION_MAP.getOrDefault(
-                    tenQuyen.toLowerCase().trim(),
-                    DEFAULT_ACTIONS
-            );
-
-            JPanel panelCon = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            panelCon.setBorder(BorderFactory.createEmptyBorder(0, 24, 4, 0));
-            panelCon.setVisible(false);
-
-            for (String action : actions) {
-
-                JCheckBox cbCon = new JCheckBox(action);
-
-                Integer actionId = actionMap.get(action.toLowerCase());
-                if (actionId != null) {
-                    cbCon.putClientProperty("id", actionId); // 🔥 gắn ID
-                }
-
-                panelCon.add(cbCon);
-            }
-
-            mapPanelCon.put(qid, panelCon);
-
-            cbCha.addActionListener(e -> {
-                boolean checked = cbCha.isSelected();
-                panelCon.setVisible(checked);
-
-                if (!checked) {
-                    for (Component c : panelCon.getComponents()) {
-                        if (c instanceof JCheckBox)
-                            ((JCheckBox) c).setSelected(false);
-                    }
-                }
-
-                pnlCheck.revalidate();
-                pnlCheck.repaint();
-            });
-
-            JPanel row = new JPanel(new BorderLayout());
-            row.add(cbCha, BorderLayout.NORTH);
-            row.add(panelCon, BorderLayout.CENTER);
-
-            pnlCheck.add(row);
+        List<QuyenActionDTO> list = new QuyenActionDAO().findAll();
+        for (QuyenActionDTO a : list) {
+            actionMap.put(a.getTenquyen().toLowerCase(), a.getId());
         }
     }
 
+    private void loadQuyen() {
+    List<QuyenDTO> list = new QuyenDAO().findAll();
+
+    for (QuyenDTO q : list) {
+        int qid = q.getQuyenId();
+        String tenQuyen = q.getTenQuyen();
+
+        JCheckBox cbCha = new JCheckBox(tenQuyen);
+        cbCha.setFont(cbCha.getFont().deriveFont(Font.BOLD));
+        cbCha.putClientProperty("id", qid);
+        checkBoxes.add(cbCha);
+
+        String[] actions = ACTION_MAP.getOrDefault(
+                tenQuyen.toLowerCase().trim(), DEFAULT_ACTIONS);
+
+        JPanel panelCon = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        panelCon.setBorder(BorderFactory.createEmptyBorder(0, 24, 4, 0));
+        
+        // --- CHỈNH SỬA Ở ĐÂY: Luôn hiện panel con ---
+        panelCon.setVisible(true); 
+
+        for (String action : actions) {
+            JCheckBox cbCon = new JCheckBox(action);
+            Integer actionId = actionMap.get(action.toLowerCase());
+            if (actionId != null) cbCon.putClientProperty("id", actionId);
+            panelCon.add(cbCon);
+        }
+
+        mapPanelCon.put(qid, panelCon);
+
+        // --- CẬP NHẬT LOGIC CLICK: Chỉ xử lý việc tick, không ẩn/hiện nữa ---
+        cbCha.addActionListener(e -> {
+            boolean checked = cbCha.isSelected();
+            if (checked) {
+                // Kiểm tra xem đã có hành động nào được tick chưa (trường hợp load từ DB)
+                boolean hasAnyChecked = false;
+                for (Component c : panelCon.getComponents()) {
+                    if (c instanceof JCheckBox && ((JCheckBox) c).isSelected()) {
+                        hasAnyChecked = true;
+                        break;
+                    }
+                }
+                // Nếu chưa có cái nào được tick (tạo mới hoàn toàn), thì tự động tick hết
+                if (!hasAnyChecked) {
+                    for (Component c : panelCon.getComponents()) {
+                        if (c instanceof JCheckBox) ((JCheckBox) c).setSelected(true);
+                    }
+                }
+            } else {
+                // Nếu bỏ chọn quyền cha, hủy sạch quyền con
+                for (Component c : panelCon.getComponents()) {
+                    if (c instanceof JCheckBox) ((JCheckBox) c).setSelected(false);
+                }
+            }
+        });
+
+        JPanel row = new JPanel(new BorderLayout());
+        row.add(cbCha, BorderLayout.NORTH);
+        row.add(panelCon, BorderLayout.CENTER);
+        pnlCheck.add(row);
+    }
+}
+
     private void loadTable() {
-
         model.setRowCount(0);
-
         List<NhomQuyenDTO> list = new NhomQuyenDAO().findAll();
-
         for (NhomQuyenDTO n : list) {
-            model.addRow(new Object[]{
-                    n.getNhomQuyenId(),
-                    n.getTenNhomQuyen()
-            });
+            model.addRow(new Object[]{n.getNhomQuyenId(), n.getTenNhomQuyen()});
         }
     }
 
     private void bindTable() {
-
     tbl.getSelectionModel().addListSelectionListener(e -> {
-
         int row = tbl.getSelectedRow();
         if (row < 0) return;
 
@@ -229,36 +205,29 @@ add(spCheck, BorderLayout.CENTER);
 
         List<Integer> perms = new NhomQuyenDAO().getPermissionsByNhom(id);
 
-        // 🔥 LẤY ACTION ĐÚNG CHỖ
-        
-
         for (JCheckBox cb : checkBoxes) {
-
             int qid = (int) cb.getClientProperty("id");
             boolean has = perms.contains(qid);
             cb.setSelected(has);
 
             JPanel panelCon = mapPanelCon.get(qid);
-
             if (panelCon != null) {
+                // --- CHỈNH SỬA Ở ĐÂY: Xóa hoặc comment dòng này ---
+                // panelCon.setVisible(has); 
+                
+                // Luôn đảm bảo nó hiện ra
+                panelCon.setVisible(true);
 
-                panelCon.setVisible(has);
-List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
+                List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
                 for (Component c : panelCon.getComponents()) {
-
                     if (c instanceof JCheckBox) {
                         JCheckBox cbCon = (JCheckBox) c;
-
                         Integer aid = (Integer) cbCon.getClientProperty("id");
-
-                        if (aid != null) {
-                            cbCon.setSelected(actionIds.contains(aid));
-                        }
+                        if (aid != null) cbCon.setSelected(actionIds.contains(aid));
                     }
                 }
             }
         }
-
         pnlCheck.revalidate();
         pnlCheck.repaint();
     });
@@ -273,82 +242,59 @@ List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
     }
 
     private Map<Integer, List<Integer>> getSelectedActions() {
-    Map<Integer, List<Integer>> result = new HashMap<>();
-
-    for (JCheckBox cbCha : checkBoxes) {
-        int qid = (Integer) cbCha.getClientProperty("id");
-
-        if (!cbCha.isSelected()) continue;
-
-        JPanel panelCon = mapPanelCon.get(qid);
-        List<Integer> actionIds = new ArrayList<>();
-
-        if (panelCon != null) {
-            for (Component c : panelCon.getComponents()) {
-                if (c instanceof JCheckBox) {
-                    JCheckBox cbCon = (JCheckBox) c;
-
-                    if (cbCon.isSelected()) {
-                        Integer aid = (Integer) cbCon.getClientProperty("id");
-
-                        if (aid != null) {
-                            actionIds.add(aid);
+        Map<Integer, List<Integer>> result = new HashMap<>();
+        for (JCheckBox cbCha : checkBoxes) {
+            int qid = (Integer) cbCha.getClientProperty("id");
+            if (!cbCha.isSelected()) continue;
+            JPanel panelCon = mapPanelCon.get(qid);
+            List<Integer> actionIds = new ArrayList<>();
+            if (panelCon != null) {
+                for (Component c : panelCon.getComponents()) {
+                    if (c instanceof JCheckBox) {
+                        JCheckBox cbCon = (JCheckBox) c;
+                        if (cbCon.isSelected()) {
+                            Integer aid = (Integer) cbCon.getClientProperty("id");
+                            if (aid != null) actionIds.add(aid);
                         }
                     }
                 }
             }
+            result.put(qid, actionIds);
         }
-
-        result.put(qid, actionIds);
+        return result;
     }
-
-    return result;
-}
 
     private void save() {
-    try {
-        String ten = txtTen.getText().trim();
-
-        if (ten.isEmpty()) {
-            throw new RuntimeException("Tên nhóm quyền không được để trống.");
+        try {
+            String ten = txtTen.getText().trim();
+            if (ten.isEmpty()) throw new RuntimeException("Tên nhóm quyền không được để trống.");
+            if (!Validator.isValidName(ten)) throw new RuntimeException("Tên nhóm quyền chỉ được chứa chữ và khoảng trắng.");
+            bus.createNhomQuyen(txtTen.getText(), getSelected(), getSelectedActions());
+            loadTable();
+            clearForm();
+            JOptionPane.showMessageDialog(this, "Tạo thành công!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
         }
-
-        if (!Validator.isValidName(ten)) {
-            throw new RuntimeException("Tên nhóm quyền chỉ được chứa chữ và khoảng trắng.");
-        }
-
-        bus.createNhomQuyen(txtTen.getText(), getSelected(), getSelectedActions());
-        loadTable();
-        clearForm();
-        JOptionPane.showMessageDialog(this, "Tạo thành công!");
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
     }
-}
 
     private void update() {
-
-    int row = tbl.getSelectedRow();
-    if (row < 0) return;
-
-    int id = (int) model.getValueAt(row, 0);
-
-    try {
-        bus.updateNhomQuyen(id, txtTen.getText(), getSelected(), getSelectedActions());
-        loadTable();
-        JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, ex.getMessage());
-    }
-}
-
-    private void delete() {
-
         int row = tbl.getSelectedRow();
         if (row < 0) return;
-
         int id = (int) model.getValueAt(row, 0);
+        try {
+            bus.updateNhomQuyen(id, txtTen.getText(), getSelected(), getSelectedActions());
+            loadTable();
+            JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
 
+    private void delete() {
+        int row = tbl.getSelectedRow();
+        if (row < 0) return;
+        int id = (int) model.getValueAt(row, 0);
         try {
             bus.deleteNhomQuyen(id);
             loadTable();
@@ -360,22 +306,18 @@ List<Integer> actionIds = new NhomQuyenDAO().getActionByNhomAndQuyen(id, qid);
     }
 
     private void clearForm() {
-
         txtTen.setText("");
-
         for (JCheckBox cb : checkBoxes) cb.setSelected(false);
-
         for (JPanel p : mapPanelCon.values()) p.setVisible(false);
-
         pnlCheck.revalidate();
         pnlCheck.repaint();
     }
 
     public void applyPermissions(List<Integer> actionIds) {
-    btnSave.setVisible(actionIds.contains(ActionConstants.THEM));
-    btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
-    btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
-    revalidate();
-    repaint();
-}
+        btnSave.setVisible(actionIds.contains(ActionConstants.THEM));
+        btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
+        btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
+        revalidate();
+        repaint();
+    }
 }

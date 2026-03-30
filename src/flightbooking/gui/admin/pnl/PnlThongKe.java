@@ -2,8 +2,8 @@ package flightbooking.gui.admin.pnl;
 
 import flightbooking.bus.ThongKeBUS;
 import flightbooking.dto.ThongKeChuyenBayDTO;
-
 import flightbooking.dto.ThongKeTongQuanDTO;
+import flightbooking.gui.admin.theme.AdminTheme;
 import flightbooking.util.ActionConstants;
 
 import javax.swing.*;
@@ -31,63 +31,43 @@ public class PnlThongKe extends JPanel {
 
     private final DefaultTableModel modelChuyenBay = new DefaultTableModel(
             new Object[]{"Chuyến bay", "Tuyến bay", "Giờ khởi hành", "Vé đã bán", "Vé hủy", "Doanh thu", "Tỷ lệ hủy"}, 0
-    ) {
-        @Override
-        public boolean isCellEditable(int row, int column) {
-            return false;
-        }
-    };
+    ) { @Override public boolean isCellEditable(int row, int column) { return false; } };
     private final JTable tblChuyenBay = new JTable(modelChuyenBay);
 
-    
-
-    private final JButton btnLoc = new JButton("Lọc");
-    private final JButton btnLamMoi = new JButton("Làm mới");
-    private final JButton btnXuatExcel = new JButton("Xuất Excel");
+    // ✅ Dùng createActionButton
+    private final JButton btnLoc      = AdminTheme.createActionButton("Lọc",        AdminTheme.ButtonRole.NEUTRAL);
+    private final JButton btnLamMoi   = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+    private final JButton btnXuatExcel = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
 
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0");
 
     public PnlThongKe() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         initDateSpinner();
-
         add(buildTop(), BorderLayout.NORTH);
         add(buildCenter(), BorderLayout.CENTER);
-
         btnLoc.addActionListener(e -> loadData());
         btnLamMoi.addActionListener(e -> lamMoi());
-
-       
-    
         loadData();
     }
 
     private void initDateSpinner() {
         spFromDate.setEditor(new JSpinner.DateEditor(spFromDate, "yyyy-MM-dd"));
         spToDate.setEditor(new JSpinner.DateEditor(spToDate, "yyyy-MM-dd"));
-
         spFromDate.setPreferredSize(new Dimension(120, 30));
         spToDate.setPreferredSize(new Dimension(120, 30));
-
-        // mặc định để trống bằng cách set ngày hôm nay nhưng chưa dùng filter nếu user chưa lọc
         Date now = new Date();
-        spFromDate.setValue(now);
-        spToDate.setValue(now);
+        spFromDate.setValue(now); spToDate.setValue(now);
     }
 
     private JPanel buildTop() {
         JPanel root = new JPanel(new BorderLayout(0, 10));
 
         JPanel filter = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        filter.add(new JLabel("Từ ngày:"));
-        filter.add(spFromDate);
-        filter.add(new JLabel("Đến ngày:"));
-        filter.add(spToDate);
-        filter.add(btnLoc);
-        filter.add(btnLamMoi);
-        filter.add(btnXuatExcel);
+        filter.add(new JLabel("Từ ngày:")); filter.add(spFromDate);
+        filter.add(new JLabel("Đến ngày:")); filter.add(spToDate);
+        filter.add(btnLoc); filter.add(btnLamMoi); filter.add(btnXuatExcel);
 
         JPanel cards = new JPanel(new GridLayout(1, 4, 10, 10));
         cards.add(createCard("Tổng doanh thu", lblTongDoanhThu));
@@ -102,15 +82,9 @@ public class PnlThongKe extends JPanel {
 
     private JPanel buildCenter() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-
         JScrollPane spMain = new JScrollPane(tblChuyenBay);
         spMain.setBorder(BorderFactory.createTitledBorder("Doanh thu theo chuyến bay"));
-
-        
-
         panel.add(spMain, BorderLayout.CENTER);
-        
-
         return panel;
     }
 
@@ -118,14 +92,10 @@ public class PnlThongKe extends JPanel {
         JPanel p = new JPanel(new BorderLayout());
         p.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                BorderFactory.createEmptyBorder(10, 10, 10, 10)
-        ));
-
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
         JLabel lblTitle = new JLabel(title);
         lblTitle.setFont(lblTitle.getFont().deriveFont(Font.BOLD, 14f));
-
         valueLabel.setFont(valueLabel.getFont().deriveFont(Font.BOLD, 18f));
-
         p.add(lblTitle, BorderLayout.NORTH);
         p.add(valueLabel, BorderLayout.CENTER);
         return p;
@@ -133,21 +103,12 @@ public class PnlThongKe extends JPanel {
 
     private void loadData() {
         try {
-            LocalDate fromDate = getFromDate();
-            LocalDate toDate = getToDate();
-
+            LocalDate fromDate = getFromDate(); LocalDate toDate = getToDate();
             if (fromDate != null && toDate != null && fromDate.isAfter(toDate)) {
-                JOptionPane.showMessageDialog(this, "Từ ngày không được lớn hơn Đến ngày");
-                return;
+                JOptionPane.showMessageDialog(this, "Từ ngày không được lớn hơn Đến ngày"); return;
             }
-
-            ThongKeTongQuanDTO tongQuan = bus.getTongQuan(fromDate, toDate, null, null);
-            setTongQuan(tongQuan);
-
-            List<ThongKeChuyenBayDTO> dsChuyenBay = bus.getDoanhThuTheoChuyenBay(fromDate, toDate, null);
-            fillTableChuyenBay(dsChuyenBay);
-
-            
+            setTongQuan(bus.getTongQuan(fromDate, toDate, null, null));
+            fillTableChuyenBay(bus.getDoanhThuTheoChuyenBay(fromDate, toDate, null));
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu thống kê:\n" + e.getMessage());
@@ -156,13 +117,9 @@ public class PnlThongKe extends JPanel {
 
     private void setTongQuan(ThongKeTongQuanDTO dto) {
         if (dto == null) {
-            lblTongDoanhThu.setText("0 VNĐ");
-            lblTongVeHieuLuc.setText("0");
-            lblTongVeHuy.setText("0");
-            lblDoanhThuTB.setText("0 VNĐ");
-            return;
+            lblTongDoanhThu.setText("0 VNĐ"); lblTongVeHieuLuc.setText("0");
+            lblTongVeHuy.setText("0"); lblDoanhThuTB.setText("0 VNĐ"); return;
         }
-
         lblTongDoanhThu.setText(formatMoney(dto.getTongDoanhThu()) + " VNĐ");
         lblTongVeHieuLuc.setText(String.valueOf(dto.getTongVeHieuLuc()));
         lblTongVeHuy.setText(String.valueOf(dto.getTongVeHuy()));
@@ -171,56 +128,27 @@ public class PnlThongKe extends JPanel {
 
     private void fillTableChuyenBay(List<ThongKeChuyenBayDTO> list) {
         modelChuyenBay.setRowCount(0);
-
         if (list == null) return;
-
         for (ThongKeChuyenBayDTO x : list) {
-            modelChuyenBay.addRow(new Object[]{
-                    x.getChuyenBayId(),
-                    x.getTuyenBayText(),
-                    x.getGioKhoiHanh(),
-                    x.getVeHieuLuc(),
-                    x.getVeHuy(),
-                    formatMoney(x.getDoanhThu()),
-                    String.format("%.2f%%", x.getTyLeHuy())
-            });
+            modelChuyenBay.addRow(new Object[]{ x.getChuyenBayId(), x.getTuyenBayText(), x.getGioKhoiHanh(),
+                    x.getVeHieuLuc(), x.getVeHuy(), formatMoney(x.getDoanhThu()), String.format("%.2f%%", x.getTyLeHuy()) });
         }
     }
 
-    
+    private String formatMoney(BigDecimal value) { return value == null ? "0" : moneyFormat.format(value); }
 
-    private String formatMoney(BigDecimal value) {
-        if (value == null) return "0";
-        return moneyFormat.format(value);
-    }
-
-    private LocalDate getFromDate() {
-        Date date = (Date) spFromDate.getValue();
-        return toLocalDate(date);
-    }
-
-    private LocalDate getToDate() {
-        Date date = (Date) spToDate.getValue();
-        return toLocalDate(date);
-    }
+    private LocalDate getFromDate() { return toLocalDate((Date) spFromDate.getValue()); }
+    private LocalDate getToDate()   { return toLocalDate((Date) spToDate.getValue()); }
 
     private LocalDate toLocalDate(Date date) {
         if (date == null) return null;
-        return Instant.ofEpochMilli(date.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+        return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    private void lamMoi() {
-        Date now = new Date();
-        spFromDate.setValue(now);
-        spToDate.setValue(now);
-        loadData();
-    }
+    private void lamMoi() { Date now = new Date(); spFromDate.setValue(now); spToDate.setValue(now); loadData(); }
 
     public void applyPermissions(List<Integer> actionIds) {
         btnXuatExcel.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
-        revalidate();
-        repaint();
+        revalidate(); repaint();
     }
 }

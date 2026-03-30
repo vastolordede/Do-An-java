@@ -21,49 +21,48 @@ public class PnlQuanLyHHK extends JPanel {
 
     private final JTable table = new JTable(model);
     private final JTextField txtTen = new JTextField();
-    private JButton btnExport;
 
-    // Thêm field
     private JButton btnAdd;
     private JButton btnUpdate;
     private JButton btnDelete;
     private JButton btnImport;
     private JButton btnReload;
+    private JButton btnExport;
 
     public PnlQuanLyHHK() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(buildTop(), BorderLayout.NORTH);
         AdminTheme.styleTable(table, false);
-add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
+        add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
         table.getSelectionModel().addListSelectionListener(e -> fillForm());
         reload();
     }
 
     private JComponent buildTop() {
-    JPanel form = new JPanel(new GridBagLayout());
-    GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
+        JPanel form = new JPanel(new GridBagLayout());
+        GridBagConstraints lc = makeLc(); GridBagConstraints fc = makeFc();
 
-    lc.gridx=0; lc.gridy=0; form.add(makeLabel("Tên hãng hàng không"), lc);
-    fc.gridx=1; fc.gridy=0; AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
+        lc.gridx = 0; lc.gridy = 0; form.add(makeLabel("Tên hãng hàng không"), lc);
+        fc.gridx = 1; fc.gridy = 0; AdminTheme.styleSoftTextField(txtTen); form.add(txtTen, fc);
 
-    btnAdd = new JButton("Thêm"); btnUpdate = new JButton("Sửa"); btnDelete = new JButton("Xóa");
-    btnReload = new JButton("Làm mới");
-    btnAdd.addActionListener(e -> add());
-    btnUpdate.addActionListener(e -> update());
-    btnDelete.addActionListener(e -> delete());
-    btnReload.addActionListener(e -> reloadData());
-    btnExport = new JButton("Xuất Excel");
-btnExport.addActionListener(e -> {
-    ExcelExporter.export(table, this);
-});
+        // ✅ Dùng createActionButton
+        btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+        btnAdd    = AdminTheme.createActionButton("Thêm",       AdminTheme.ButtonRole.NEUTRAL);
+        btnUpdate = AdminTheme.createActionButton("Sửa",        AdminTheme.ButtonRole.NEUTRAL);
+        btnDelete = AdminTheme.createActionButton("Xóa",        AdminTheme.ButtonRole.NEUTRAL);
+        btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
+        btnImport = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
 
-    btnImport = new JButton("Nhập Excel");
-    btnImport.addActionListener(e -> {
-        ExcelImporter.importToTable(table, this);
-    });
-    return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
-}
+        btnAdd.addActionListener(e -> add());
+        btnUpdate.addActionListener(e -> update());
+        btnDelete.addActionListener(e -> delete());
+        btnReload.addActionListener(e -> reloadData());
+        btnExport.addActionListener(e -> ExcelExporter.export(table, this));
+        btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
+
+        return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+    }
 
     private void reload() {
         model.setRowCount(0);
@@ -82,19 +81,11 @@ btnExport.addActionListener(e -> {
     }
 
     private void add() {
-        HangHangKhongDTO h = new HangHangKhongDTO();
-        h.setTenHang(txtTen.getText().trim());
         String ten = txtTen.getText().trim();
-
-        if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên hãng không được để trống.");
-            return;
-        }
-
-        if (!Validator.isValidName(ten)) {
-            JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng.");
-            return;
-        }
+        if (ten.isEmpty()) { JOptionPane.showMessageDialog(this, "Tên hãng không được để trống."); return; }
+        if (!Validator.isValidName(ten)) { JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng."); return; }
+        HangHangKhongDTO h = new HangHangKhongDTO();
+        h.setTenHang(ten);
         hhkBUS.themHHK(h);
         reload();
         txtTen.setText("");
@@ -103,21 +94,12 @@ btnExport.addActionListener(e -> {
     private void update() {
         int row = table.getSelectedRow();
         if (row < 0) return;
+        String ten = txtTen.getText().trim();
+        if (ten.isEmpty()) { JOptionPane.showMessageDialog(this, "Tên hãng không được để trống."); return; }
+        if (!Validator.isValidName(ten)) { JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng."); return; }
         HangHangKhongDTO h = new HangHangKhongDTO();
         h.setHangHangKhongId((int) model.getValueAt(row, 0));
-        h.setTenHang(txtTen.getText().trim());
-        String ten = txtTen.getText().trim();
-
-        if (ten.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên hãng không được để trống.");
-            return;
-        }
-
-        if (!Validator.isValidName(ten)) {
-            JOptionPane.showMessageDialog(this, "Tên hãng chỉ được chứa chữ cái và khoảng trắng.");
-            return;
-        }
-
+        h.setTenHang(ten);
         hhkBUS.capNhatHHK(h);
         reload();
     }
@@ -125,66 +107,45 @@ btnExport.addActionListener(e -> {
     private void delete() {
         int row = table.getSelectedRow();
         if (row < 0) return;
-        int id = (int) model.getValueAt(row, 0);
-        hhkBUS.xoaHHK(id);
+        hhkBUS.xoaHHK((int) model.getValueAt(row, 0));
         reload();
         txtTen.setText("");
     }
-    // Thêm method
+
     public void applyPermissions(List<Integer> actionIds) {
-    btnAdd.setVisible(actionIds.contains(ActionConstants.THEM));
-    btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
-    btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
-    btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
-    btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
-    revalidate();
-    repaint();
-}
+        btnAdd.setVisible(actionIds.contains(ActionConstants.THEM));
+        btnUpdate.setVisible(actionIds.contains(ActionConstants.SUA));
+        btnDelete.setVisible(actionIds.contains(ActionConstants.XOA));
+        btnExport.setVisible(actionIds.contains(ActionConstants.XUAT_EXCEL));
+        btnImport.setVisible(actionIds.contains(ActionConstants.NHAP_EXCEL));
+        revalidate(); repaint();
+    }
 
     private GridBagConstraints makeLc() {
-    GridBagConstraints lc = new GridBagConstraints();
-    lc.anchor = GridBagConstraints.WEST;
-    lc.insets = new Insets(6, 4, 6, 6);
-    return lc;
-}
+        GridBagConstraints lc = new GridBagConstraints();
+        lc.anchor = GridBagConstraints.WEST;
+        lc.insets = new Insets(6, 4, 6, 6);
+        return lc;
+    }
 
-private GridBagConstraints makeFc() {
-    GridBagConstraints fc = new GridBagConstraints();
-    fc.fill = GridBagConstraints.HORIZONTAL;
-    fc.weightx = 1.0;
-    fc.insets = new Insets(6, 0, 6, 12);
-    return fc;
-}
+    private GridBagConstraints makeFc() {
+        GridBagConstraints fc = new GridBagConstraints();
+        fc.fill = GridBagConstraints.HORIZONTAL;
+        fc.weightx = 1.0;
+        fc.insets = new Insets(6, 0, 6, 12);
+        return fc;
+    }
 
-private JLabel makeLabel(String text) {
-    JLabel lb = new JLabel(text);
-    lb.setFont(lb.getFont().deriveFont(Font.PLAIN, 13f));
-    return lb;
-}
+    private JLabel makeLabel(String text) {
+        JLabel lb = new JLabel(text);
+        lb.setFont(lb.getFont().deriveFont(Font.PLAIN, 13f));
+        return lb;
+    }
 
-private void styleField(JTextField field) {
-    field.setPreferredSize(new Dimension(160, 30));
-    field.setFont(field.getFont().deriveFont(13f));
-    field.setBorder(BorderFactory.createCompoundBorder(
-        BorderFactory.createLineBorder(new Color(200, 200, 200)),
-        BorderFactory.createEmptyBorder(3, 8, 3, 8)
-    ));
-}
-
-private JPanel wrapWithActions(JPanel form, JButton... buttons) {
-    JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
-    for (JButton b : buttons) actions.add(b);
-    JPanel wrap = new JPanel(new BorderLayout(0, 8));
-    wrap.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
-    wrap.add(form, BorderLayout.CENTER);
-    wrap.add(actions, BorderLayout.SOUTH);
-    return wrap;
-}
-public void reloadData() {
-    reload();
-    txtTen.setText("");
-    table.clearSelection();
-    revalidate();
-    repaint();
-}
+    public void reloadData() {
+        reload();
+        txtTen.setText("");
+        table.clearSelection();
+        revalidate(); repaint();
+    }
 }

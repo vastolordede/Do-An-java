@@ -135,7 +135,7 @@ btnExport.addActionListener(e -> {
     ExcelExporter.export(table, this);
 });
 
-btnImport = new JButton("Nhập Excel");
+btnImport = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
 btnImport.addActionListener(e -> {
     ExcelImporter.importToTable(table, this);
 });
@@ -165,10 +165,10 @@ addFormRow(form, lc, fc, 1, 4, "Ngày nghỉ", spNgayNghi);
     // Style các field
    
 
-    btnAdd    = new JButton("Thêm");
-    btnUpdate = new JButton("Sửa");
-    btnDelete = new JButton("Xóa");
-    btnClear  = new JButton("Làm mới");
+    btnAdd = AdminTheme.createActionButton("Thêm", AdminTheme.ButtonRole.NEUTRAL);
+    btnUpdate = AdminTheme.createActionButton("Sửa", AdminTheme.ButtonRole.NEUTRAL);
+    btnDelete = AdminTheme.createActionButton("Xóa", AdminTheme.ButtonRole.NEUTRAL);
+    btnClear  = AdminTheme.createActionButton("Làm mới", AdminTheme.ButtonRole.NEUTRAL);
 
     btnAdd.addActionListener(e -> add());
     btnUpdate.addActionListener(e -> update());
@@ -180,7 +180,7 @@ addFormRow(form, lc, fc, 1, 4, "Ngày nghỉ", spNgayNghi);
     actions.add(btnAdd);
     actions.add(btnUpdate);
     actions.add(btnDelete);
-    btnExport = new JButton("Xuất Excel");
+    btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
 btnExport.addActionListener(e -> {
     ExcelExporter.export(table, this);
 });
