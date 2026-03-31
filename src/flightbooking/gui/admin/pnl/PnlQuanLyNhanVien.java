@@ -78,16 +78,17 @@ private final JSpinner spNgayNghi = new JSpinner(new SpinnerDateModel());
         setLayout(new BorderLayout(10,10));
         setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        add(buildForm(), BorderLayout.NORTH);
-        AdminTheme.styleTable(table, false);
-add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
-
-        table.setRowHeight(25);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        cbTrangThai.setEnabled(false);
-        txtQuyen.setEditable(false);
         spNgayVaoLam.setEditor(new JSpinner.DateEditor(spNgayVaoLam, "yyyy-MM-dd"));
 spNgayNghi.setEditor(new JSpinner.DateEditor(spNgayNghi, "yyyy-MM-dd"));
+
+add(buildForm(), BorderLayout.NORTH);
+AdminTheme.styleTable(table, false);
+add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
+
+table.setRowHeight(25);
+table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+cbTrangThai.setEnabled(false);
+txtQuyen.setEditable(false);
 
         btnPhanQuyen.addActionListener(e -> openPermissionDialog());
 
@@ -109,17 +110,18 @@ spNgayNghi.setEditor(new JSpinner.DateEditor(spNgayNghi, "yyyy-MM-dd"));
     private JPanel buildForm() {
     JPanel form = new JPanel(new GridBagLayout());
     form.setOpaque(false);
-
-AdminTheme.styleSoftTextField(txtHoTen);
-AdminTheme.styleSoftTextField(txtEmail);
-AdminTheme.styleSoftTextField(txtDienThoai);
-AdminTheme.styleSoftTextField(txtLuong);
-AdminTheme.styleSoftSpinner(spNgayVaoLam);
-AdminTheme.styleSoftSpinner(spNgayNghi);
-AdminTheme.styleSoftComboBox(cbPhongBan);
-AdminTheme.styleSoftComboBox(cbChucVu);
-AdminTheme.styleSoftComboBox(cbTrangThai);
-AdminTheme.styleSoftTextField(txtQuyen);
+spNgayVaoLam.setEditor(new JSpinner.DateEditor(spNgayVaoLam, "yyyy-MM-dd"));
+    spNgayNghi.setEditor(new JSpinner.DateEditor(spNgayNghi, "yyyy-MM-dd"));
+  AdminTheme.styleSoftTextField(txtHoTen);
+    AdminTheme.styleSoftTextField(txtEmail);
+    AdminTheme.styleSoftTextField(txtDienThoai);
+    AdminTheme.styleSoftTextField(txtLuong);
+    AdminTheme.styleSoftSpinner(spNgayVaoLam);
+    AdminTheme.styleSoftSpinner(spNgayNghi);
+    AdminTheme.styleSoftComboBox(cbPhongBan);
+    AdminTheme.styleSoftComboBox(cbChucVu);
+    AdminTheme.styleSoftComboBox(cbTrangThai);
+    AdminTheme.styleSoftTextField(txtQuyen);
     form.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
 
     GridBagConstraints lc = new GridBagConstraints();
@@ -165,9 +167,9 @@ addFormRow(form, lc, fc, 1, 4, "Ngày nghỉ", spNgayNghi);
     // Style các field
    
 
-    btnAdd = AdminTheme.createActionButton("Thêm", AdminTheme.ButtonRole.NEUTRAL);
-    btnUpdate = AdminTheme.createActionButton("Sửa", AdminTheme.ButtonRole.NEUTRAL);
-    btnDelete = AdminTheme.createActionButton("Xóa", AdminTheme.ButtonRole.NEUTRAL);
+    btnAdd = AdminTheme.createActionButton("Thêm", AdminTheme.ButtonRole.ADD);
+    btnUpdate = AdminTheme.createActionButton("Sửa", AdminTheme.ButtonRole.EDIT);
+    btnDelete = AdminTheme.createActionButton("Xóa", AdminTheme.ButtonRole.DELETE);
     btnClear  = AdminTheme.createActionButton("Làm mới", AdminTheme.ButtonRole.NEUTRAL);
 
     btnAdd.addActionListener(e -> add());

@@ -62,9 +62,9 @@ public class PnlQuanLyTuyenBay extends JPanel {
 
         // ✅ Dùng createActionButton
         btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
-        btnAdd    = AdminTheme.createActionButton("Thêm",       AdminTheme.ButtonRole.NEUTRAL);
-        btnUpdate = AdminTheme.createActionButton("Sửa",        AdminTheme.ButtonRole.NEUTRAL);
-        btnDelete = AdminTheme.createActionButton("Xóa",        AdminTheme.ButtonRole.NEUTRAL);
+        btnAdd    = AdminTheme.createActionButton("Thêm",       AdminTheme.ButtonRole.ADD);
+        btnUpdate = AdminTheme.createActionButton("Sửa",        AdminTheme.ButtonRole.EDIT  );
+        btnDelete = AdminTheme.createActionButton("Xóa",        AdminTheme.ButtonRole.DELETE);
         btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
         btnImport = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
 

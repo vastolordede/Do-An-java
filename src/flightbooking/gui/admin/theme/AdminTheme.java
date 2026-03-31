@@ -56,28 +56,33 @@ public class AdminTheme {
     }
 
     public static void apply() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+    try {
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+    } catch (Exception ignored) {}
 
-        Font f = new Font("Segoe UI", Font.PLAIN, 13);
-        for (Enumeration<Object> e = UIManager.getDefaults().keys(); e.hasMoreElements();) {
-            Object key = e.nextElement();
-            Object val = UIManager.get(key);
-            if (val instanceof FontUIResource) {
-                UIManager.put(key, new FontUIResource(f));
-            }
+    Font f = new Font("Segoe UI", Font.PLAIN, 13);
+    for (Enumeration<Object> e = UIManager.getDefaults().keys(); e.hasMoreElements();) {
+        Object key = e.nextElement();
+        Object val = UIManager.get(key);
+        if (val instanceof FontUIResource) {
+            UIManager.put(key, new FontUIResource(f));
         }
-
-        UIManager.put("Panel.background", CONTENT_BG);
-        UIManager.put("OptionPane.background", CONTENT_BG);
-        UIManager.put("Table.selectionBackground", TABLE_SELECT);
-        UIManager.put("Table.selectionForeground", TEXT_DARK);
-        UIManager.put("ComboBox.selectionBackground", TABLE_SELECT);
-        UIManager.put("ComboBox.selectionForeground", Color.WHITE);
-        UIManager.put("ScrollPane.border", BorderFactory.createEmptyBorder());
-        UIManager.put("Table.scrollPaneBorder", BorderFactory.createEmptyBorder());
     }
+
+    UIManager.put("Panel.background", CONTENT_BG);
+UIManager.put("OptionPane.background", CONTENT_BG);
+UIManager.put("Table.selectionBackground", TABLE_SELECT);
+UIManager.put("Table.selectionForeground", TEXT_DARK);
+UIManager.put("ComboBox.selectionBackground", TABLE_SELECT);
+UIManager.put("ComboBox.selectionForeground", Color.WHITE);
+UIManager.put("ScrollPane.border", BorderFactory.createEmptyBorder());
+UIManager.put("Table.scrollPaneBorder", BorderFactory.createEmptyBorder());
+
+UIManager.put("Spinner.background", Color.WHITE);
+UIManager.put("Spinner.foreground", TEXT_DARK);
+UIManager.put("Spinner.border", BorderFactory.createEmptyBorder());
+UIManager.put("Spinner.arrowButtonBorder", BorderFactory.createEmptyBorder());
+}
 
     // =========================================================
     // SIDEBAR
@@ -174,53 +179,76 @@ public class AdminTheme {
     // ACTION BUTTONS — factory method, đảm bảo paintComponent không bị LAF override
     // =========================================================
     public static JButton createActionButton(String text, ButtonRole role) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    JButton btn = new JButton(text) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                Color fill = BG_WHITE;
-                if (getModel().isPressed()) fill = new Color(220, 220, 220);
-                else if (getModel().isRollover()) fill = new Color(245, 245, 245);
+            Color fill;
+            Color border;
+            Color textColor = Color.WHITE;
 
-                // Vẽ nền bo tròn
-                g2.setColor(fill);
-                g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
-
-                // Vẽ viền đen
-                g2.setColor(BORDER_BLACK);
-                g2.setStroke(new BasicStroke(1.5f));
-                g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 15, 15);
-
-                // Vẽ chữ
-                g2.setColor(TEXT_DARK);
-                g2.setFont(getFont());
-                FontMetrics fm = g2.getFontMetrics();
-                int x = (getWidth() - fm.stringWidth(getText())) / 2;
-                int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-                g2.drawString(getText(), x, y);
-
-                g2.dispose();
+            switch (role) {
+                case ADD:
+                    fill = new Color(33, 150, 243);      // xanh dương
+                    border = new Color(25, 118, 210);
+                    break;
+                case EDIT:
+                    fill = new Color(255, 193, 7);       // vàng
+                    border = new Color(230, 170, 0);
+                    textColor = Color.BLACK;
+                    break;
+                case DELETE:
+                    fill = new Color(244, 67, 54);       // đỏ
+                    border = new Color(211, 47, 47);
+                    break;
+                default:
+                    fill = Color.WHITE;
+                    border = BORDER_BLACK;
+                    textColor = TEXT_DARK;
+                    break;
             }
 
-            @Override
-            protected void paintBorder(Graphics g) {
-                // không vẽ border mặc định của Swing
+            if (getModel().isPressed()) {
+                fill = fill.darker();
+            } else if (getModel().isRollover()) {
+                fill = role == ButtonRole.NEUTRAL ? new Color(245, 245, 245) : fill.brighter();
             }
-        };
 
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setForeground(TEXT_DARK);
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setOpaque(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(120, 36));
-        btn.setBorder(new EmptyBorder(0, 14, 0, 14));
-        return btn;
-    }
+            g2.setColor(fill);
+            g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 16, 16);
+
+            g2.setColor(border);
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.drawRoundRect(1, 1, getWidth() - 2, getHeight() - 2, 16, 16);
+
+            g2.setColor(textColor);
+            g2.setFont(getFont());
+            FontMetrics fm = g2.getFontMetrics();
+            int x = (getWidth() - fm.stringWidth(getText())) / 2;
+            int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+            g2.drawString(getText(), x, y);
+
+            g2.dispose();
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+        }
+    };
+
+    btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    btn.setForeground(TEXT_DARK);
+    btn.setContentAreaFilled(false);
+    btn.setBorderPainted(false);
+    btn.setFocusPainted(false);
+    btn.setOpaque(false);
+    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    btn.setPreferredSize(new Dimension(125, 38));
+    btn.setBorder(new EmptyBorder(0, 14, 0, 14));
+    return btn;
+}
 
     // Giữ lại styleActionButton để không break code cũ ở các panel khác,
     // nhưng bên trong gọi createActionButton pattern
@@ -391,94 +419,184 @@ public class AdminTheme {
     }
 
     public static void styleSoftTextField(JTextField field) {
-        field.setPreferredSize(new Dimension(180, 35));
-        field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        field.setBackground(BG_WHITE);
-        field.setForeground(TEXT_DARK);
-        field.setCaretColor(TEXT_DARK);
-        // Sử dụng Insets nhỏ hơn cho RoundedBorder
-        field.setBorder(BorderFactory.createCompoundBorder(
-            new RoundedBorder(15, BORDER_BLACK), 
-            BorderFactory.createEmptyBorder(2, 5, 2, 5) // Giảm padding bên trong xuống
-        ));
-    }
+    field.setPreferredSize(new Dimension(190, 38));
+    field.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    field.setBackground(Color.WHITE);
+    field.setForeground(TEXT_DARK);
+    field.setCaretColor(TEXT_DARK);
+    field.setOpaque(true);
+
+    field.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(18, new Color(35, 35, 35), 1.8f),
+            BorderFactory.createEmptyBorder(6, 12, 6, 12)
+    ));
+}
 
     public static void styleSoftComboBox(JComboBox<?> cb) {
-        cb.setPreferredSize(new Dimension(180, 35));
-        cb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        cb.setBackground(BG_WHITE);
-        cb.setForeground(TEXT_DARK);
-        cb.setBorder(BorderFactory.createCompoundBorder(
-            new RoundedBorder(15, BORDER_BLACK),
-            BorderFactory.createEmptyBorder(2, 10, 2, 2)
-        ));
-        cb.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
-            @Override
-            protected JButton createArrowButton() {
-                JButton btn = super.createArrowButton();
-                btn.setContentAreaFilled(false);
-                btn.setBorder(null);
-                return btn;
+    cb.setPreferredSize(new Dimension(190, 38));
+    cb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    cb.setBackground(Color.decode("#D8F6FF"));
+    cb.setForeground(TEXT_DARK);
+    cb.setOpaque(false);
+    cb.setFocusable(false);
+
+    cb.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(18, new Color(35, 35, 35), 1.8f),
+            BorderFactory.createEmptyBorder(4, 10, 4, 8)
+    ));
+
+    cb.setRenderer(new DefaultListCellRenderer() {
+        @Override
+        public Component getListCellRendererComponent(
+                JList<?> list, Object value, int index,
+                boolean isSelected, boolean cellHasFocus) {
+            JLabel lb = (JLabel) super.getListCellRendererComponent(
+                    list, value, index, isSelected, cellHasFocus);
+
+            lb.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            lb.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+
+            if (isSelected) {
+                lb.setBackground(TABLE_SELECT);
+                lb.setForeground(TEXT_DARK);
+            } else {
+                lb.setBackground(Color.WHITE);
+                lb.setForeground(TEXT_DARK);
             }
-        });
-    }
+            lb.setOpaque(true);
+            return lb;
+        }
+    });
 
-    public static class RoundedBorder implements javax.swing.border.Border {
-        private int radius;
-        private Color color;
-
-        public RoundedBorder(int radius, Color color) {
-            this.radius = radius;
-            this.color = color;
+    cb.setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
+        @Override
+        protected JButton createArrowButton() {
+            JButton btn = new JButton("▼");
+            btn.setBorder(BorderFactory.createEmptyBorder());
+            btn.setContentAreaFilled(false);
+            btn.setFocusPainted(false);
+            btn.setOpaque(false);
+            btn.setForeground(TEXT_DARK);
+            btn.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            btn.setBackground(new Color(0, 0, 0, 0));
+            return btn;
         }
 
-        public Insets getBorderInsets(Component c) {
-            // QUAN TRỌNG: Trả về Insets nhỏ để không chiếm không gian của Text
-            return new Insets(1, 1, 1, 1); 
-        }
-
-        public boolean isBorderOpaque() { return false; } // Đổi thành false để tránh lỗi vẽ đè
-
-        public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        @Override
+        public void paintCurrentValueBackground(Graphics g, Rectangle bounds, boolean hasFocus) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setColor(color);
-            g2.drawRoundRect(x, y, width - 1, height - 1, radius, radius);
+            g2.setColor(Color.decode("#D8F6FF"));
+            g2.fillRoundRect(bounds.x, bounds.y, bounds.width, bounds.height, 16, 16);
             g2.dispose();
         }
+    });
+}
+
+    public static class RoundedBorder implements javax.swing.border.Border {
+    private final int radius;
+    private final Color color;
+    private final float thickness;
+
+    public RoundedBorder(int radius, Color color) {
+        this(radius, color, 1.6f);
     }
+
+    public RoundedBorder(int radius, Color color, float thickness) {
+        this.radius = radius;
+        this.color = color;
+        this.thickness = thickness;
+    }
+
+    @Override
+    public Insets getBorderInsets(Component c) {
+        return new Insets(6, 10, 6, 10);
+    }
+
+    @Override
+    public boolean isBorderOpaque() {
+        return false;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(color);
+        g2.setStroke(new BasicStroke(thickness));
+        g2.drawRoundRect(x + 1, y + 1, width - 3, height - 3, radius, radius);
+        g2.dispose();
+    }
+}
 
     public static void styleSoftSpinner(JSpinner sp) {
-        sp.setPreferredSize(new Dimension(180, 35));
-        sp.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        sp.setBorder(BorderFactory.createCompoundBorder(
-            new RoundedBorder(15, BORDER_BLACK),
-            BorderFactory.createEmptyBorder(2, 10, 2, 10)
-        ));
-        JComponent editor = sp.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
-            tf.setBackground(BG_WHITE);
-            tf.setForeground(TEXT_DARK);
-            tf.setCaretColor(TEXT_DARK);
-            tf.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
-        }
-        sp.setOpaque(true);
-        sp.setBackground(BG_WHITE);
+    sp.setPreferredSize(new Dimension(190, 38));
+    sp.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+    sp.setBackground(Color.WHITE);
+    sp.setForeground(TEXT_DARK);
+    sp.setOpaque(true);
+
+    sp.setBorder(BorderFactory.createCompoundBorder(
+            new RoundedBorder(18, new Color(35, 35, 35), 1.8f),
+            BorderFactory.createEmptyBorder(2, 8, 2, 8)
+    ));
+
+    JComponent editor = sp.getEditor();
+    if (editor instanceof JSpinner.DefaultEditor) {
+        JSpinner.DefaultEditor de = (JSpinner.DefaultEditor) editor;
+        JTextField tf = de.getTextField();
+
+        tf.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        tf.setForeground(TEXT_DARK);
+        tf.setCaretColor(TEXT_DARK);
+        tf.setBackground(Color.WHITE);
+        tf.setOpaque(true);
+        tf.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+        tf.setDisabledTextColor(TEXT_DARK);
+        tf.setSelectionColor(TABLE_SELECT);
+        tf.setSelectedTextColor(TEXT_DARK);
+        tf.setHorizontalAlignment(JTextField.RIGHT);
     }
 
-    public static JPanel wrapFormCard(JComponent form, JButton... buttons) {
-        JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
-        actions.setOpaque(true);
-        actions.setBackground(Color.WHITE);
-        for (JButton b : buttons) {
-            actions.add(b);
+    for (Component c : sp.getComponents()) {
+        if (c instanceof JButton) {
+            JButton btn = (JButton) c;
+            btn.setBorder(BorderFactory.createEmptyBorder());
+            btn.setBorderPainted(false);
+            btn.setContentAreaFilled(false);
+            btn.setFocusPainted(false);
+            btn.setOpaque(false);
+            btn.setBackground(new Color(0, 0, 0, 0));
+            btn.setMargin(new Insets(0, 0, 0, 0));
+        } else if (c instanceof JComponent) {
+            ((JComponent) c).setBorder(BorderFactory.createEmptyBorder());
         }
-        JPanel card = createFormCard(new BorderLayout(0, 10));
-        card.add(form, BorderLayout.CENTER);
-        card.add(actions, BorderLayout.SOUTH);
-        return card;
     }
+
+    sp.revalidate();
+    sp.repaint();
+}
+
+    public static JPanel wrapFormCard(JComponent form, JButton... buttons) {
+    JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 4));
+    actions.setOpaque(true);
+    actions.setBackground(Color.WHITE);
+
+    for (JButton b : buttons) {
+        actions.add(b);
+    }
+
+    JPanel card = createFormCard(new BorderLayout(0, 10));
+    card.setOpaque(true);
+    card.setBackground(Color.WHITE);
+
+    form.setOpaque(true);
+    form.setBackground(Color.WHITE);
+
+    card.add(form, BorderLayout.CENTER);
+    card.add(actions, BorderLayout.SOUTH);
+    return card;
+}
 
     public static class RoundedTextField extends JTextField {
         private final int radius = 18;

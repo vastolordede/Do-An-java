@@ -80,7 +80,8 @@ public class PnlQuanLyChuyenBay extends JPanel {
     private JPanel buildForm() {
         JPanel form = new JPanel(new GridLayout(3, 4, 10, 10));
         form.setOpaque(false);
-
+spGioKhoiHanh.setEditor(new JSpinner.DateEditor(spGioKhoiHanh, "yyyy-MM-dd HH:mm"));
+spGioDen.setEditor(new JSpinner.DateEditor(spGioDen, "yyyy-MM-dd HH:mm"));
         AdminTheme.styleSoftComboBox(cbTuyenBay);
         AdminTheme.styleSoftComboBox(cbHangHK);
         AdminTheme.styleSoftComboBox(cbMayBay);
@@ -97,9 +98,9 @@ public class PnlQuanLyChuyenBay extends JPanel {
 
         // ✅ Dùng createActionButton
         btnReload   = AdminTheme.createActionButton("Làm mới",       AdminTheme.ButtonRole.NEUTRAL);
-        btnAdd      = AdminTheme.createActionButton("Thêm",          AdminTheme.ButtonRole.NEUTRAL);
-        btnUpdate   = AdminTheme.createActionButton("Sửa",           AdminTheme.ButtonRole.NEUTRAL);
-        btnDelete   = AdminTheme.createActionButton("Xóa",           AdminTheme.ButtonRole.NEUTRAL);
+        btnAdd      = AdminTheme.createActionButton("Thêm",          AdminTheme.ButtonRole.ADD);
+        btnUpdate   = AdminTheme.createActionButton("Sửa",           AdminTheme.ButtonRole.EDIT  );
+        btnDelete   = AdminTheme.createActionButton("Xóa",           AdminTheme.ButtonRole.DELETE);
         btnGiaHang  = AdminTheme.createActionButton("Giá hạng ghế",  AdminTheme.ButtonRole.NEUTRAL);
         btnSeatMap  = AdminTheme.createActionButton("Sơ đồ ghế",     AdminTheme.ButtonRole.NEUTRAL);
         btnExport   = AdminTheme.createActionButton("Xuất Excel",    AdminTheme.ButtonRole.NEUTRAL);

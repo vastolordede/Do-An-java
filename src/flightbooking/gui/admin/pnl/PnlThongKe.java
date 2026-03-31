@@ -53,13 +53,16 @@ public class PnlThongKe extends JPanel {
     }
 
     private void initDateSpinner() {
-        spFromDate.setEditor(new JSpinner.DateEditor(spFromDate, "yyyy-MM-dd"));
-        spToDate.setEditor(new JSpinner.DateEditor(spToDate, "yyyy-MM-dd"));
-        spFromDate.setPreferredSize(new Dimension(120, 30));
-        spToDate.setPreferredSize(new Dimension(120, 30));
-        Date now = new Date();
-        spFromDate.setValue(now); spToDate.setValue(now);
-    }
+    spFromDate.setEditor(new JSpinner.DateEditor(spFromDate, "yyyy-MM-dd"));
+    spToDate.setEditor(new JSpinner.DateEditor(spToDate, "yyyy-MM-dd"));
+
+    AdminTheme.styleSoftSpinner(spFromDate);
+    AdminTheme.styleSoftSpinner(spToDate);
+
+    Date now = new Date();
+    spFromDate.setValue(now);
+    spToDate.setValue(now);
+}
 
     private JPanel buildTop() {
         JPanel root = new JPanel(new BorderLayout(0, 10));

@@ -62,10 +62,21 @@ public class PnlNhomQuyen extends JPanel {
         add(AdminTheme.wrapTable(tbl), BorderLayout.WEST);
 
         pnlCheck.setLayout(new BoxLayout(pnlCheck, BoxLayout.Y_AXIS));
-        JScrollPane spCheck = new JScrollPane(pnlCheck);
-        spCheck.setBorder(null);
-        spCheck.setViewportBorder(null);
-        add(spCheck, BorderLayout.CENTER);
+pnlCheck.setOpaque(true);
+pnlCheck.setBackground(Color.WHITE);
+pnlCheck.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+JScrollPane spCheck = new JScrollPane(pnlCheck);
+spCheck.setBorder(BorderFactory.createEmptyBorder());
+spCheck.getViewport().setBackground(Color.WHITE);
+spCheck.setViewportBorder(null);
+
+JPanel rightWrap = new JPanel(new BorderLayout());
+rightWrap.setBackground(Color.WHITE);
+rightWrap.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+rightWrap.add(spCheck, BorderLayout.CENTER);
+
+add(rightWrap, BorderLayout.CENTER);
 
         loadActionMap();
         loadQuyen();
@@ -85,9 +96,9 @@ public class PnlNhomQuyen extends JPanel {
         fc.gridwidth = 1;
 
         // ✅ Dùng createActionButton
-        btnSave   = AdminTheme.createActionButton("Tạo",       AdminTheme.ButtonRole.NEUTRAL);
-        btnUpdate = AdminTheme.createActionButton("Cập nhật",  AdminTheme.ButtonRole.NEUTRAL);
-        btnDelete = AdminTheme.createActionButton("Xóa",       AdminTheme.ButtonRole.NEUTRAL);
+        btnSave   = AdminTheme.createActionButton("Tạo",       AdminTheme.ButtonRole.ADD);
+        btnUpdate = AdminTheme.createActionButton("Cập nhật",  AdminTheme.ButtonRole.EDIT);
+        btnDelete = AdminTheme.createActionButton("Xóa",       AdminTheme.ButtonRole.DELETE);
 
         btnSave.addActionListener(e -> save());
         btnUpdate.addActionListener(e -> update());
@@ -132,58 +143,70 @@ public class PnlNhomQuyen extends JPanel {
         String tenQuyen = q.getTenQuyen();
 
         JCheckBox cbCha = new JCheckBox(tenQuyen);
-        cbCha.setFont(cbCha.getFont().deriveFont(Font.BOLD));
-        cbCha.putClientProperty("id", qid);
-        checkBoxes.add(cbCha);
+cbCha.setFont(new Font("Segoe UI", Font.BOLD, 14));
+cbCha.setOpaque(false);
+cbCha.putClientProperty("id", qid);
+checkBoxes.add(cbCha);
 
         String[] actions = ACTION_MAP.getOrDefault(
                 tenQuyen.toLowerCase().trim(), DEFAULT_ACTIONS);
 
-        JPanel panelCon = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        panelCon.setBorder(BorderFactory.createEmptyBorder(0, 24, 4, 0));
+        JPanel panelCon = new JPanel(new GridLayout(0, 3, 10, 6));
+panelCon.setOpaque(false);
+panelCon.setBorder(BorderFactory.createEmptyBorder(4, 32, 8, 0));
         
         // --- CHỈNH SỬA Ở ĐÂY: Luôn hiện panel con ---
         panelCon.setVisible(true); 
 
         for (String action : actions) {
-            JCheckBox cbCon = new JCheckBox(action);
-            Integer actionId = actionMap.get(action.toLowerCase());
-            if (actionId != null) cbCon.putClientProperty("id", actionId);
-            panelCon.add(cbCon);
+    JCheckBox cbCon = new JCheckBox(action);
+    cbCon.setOpaque(false);
+    cbCon.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+
+    Integer actionId = actionMap.get(action.toLowerCase());
+    if (actionId != null) cbCon.putClientProperty("id", actionId);
+
+    cbCon.addActionListener(e -> {
+        boolean hasAnyChecked = false;
+
+        for (Component c : panelCon.getComponents()) {
+            if (c instanceof JCheckBox && ((JCheckBox) c).isSelected()) {
+                hasAnyChecked = true;
+                break;
+            }
         }
+
+        cbCha.setSelected(hasAnyChecked);
+    });
+
+    panelCon.add(cbCon);
+}
 
         mapPanelCon.put(qid, panelCon);
 
         // --- CẬP NHẬT LOGIC CLICK: Chỉ xử lý việc tick, không ẩn/hiện nữa ---
         cbCha.addActionListener(e -> {
-            boolean checked = cbCha.isSelected();
-            if (checked) {
-                // Kiểm tra xem đã có hành động nào được tick chưa (trường hợp load từ DB)
-                boolean hasAnyChecked = false;
-                for (Component c : panelCon.getComponents()) {
-                    if (c instanceof JCheckBox && ((JCheckBox) c).isSelected()) {
-                        hasAnyChecked = true;
-                        break;
-                    }
-                }
-                // Nếu chưa có cái nào được tick (tạo mới hoàn toàn), thì tự động tick hết
-                if (!hasAnyChecked) {
-                    for (Component c : panelCon.getComponents()) {
-                        if (c instanceof JCheckBox) ((JCheckBox) c).setSelected(true);
-                    }
-                }
-            } else {
-                // Nếu bỏ chọn quyền cha, hủy sạch quyền con
-                for (Component c : panelCon.getComponents()) {
-                    if (c instanceof JCheckBox) ((JCheckBox) c).setSelected(false);
-                }
-            }
-        });
+    boolean checked = cbCha.isSelected();
+    for (Component c : panelCon.getComponents()) {
+        if (c instanceof JCheckBox) {
+            ((JCheckBox) c).setSelected(checked);
+        }
+    }
+});
 
-        JPanel row = new JPanel(new BorderLayout());
-        row.add(cbCha, BorderLayout.NORTH);
-        row.add(panelCon, BorderLayout.CENTER);
-        pnlCheck.add(row);
+        JPanel row = new JPanel(new BorderLayout(0, 6));
+row.setOpaque(true);
+row.setBackground(new Color(250, 250, 250));
+row.setBorder(BorderFactory.createCompoundBorder(
+        BorderFactory.createLineBorder(new Color(230, 230, 230)),
+        BorderFactory.createEmptyBorder(10, 12, 10, 12)
+));
+
+row.add(cbCha, BorderLayout.NORTH);
+row.add(panelCon, BorderLayout.CENTER);
+
+pnlCheck.add(row);
+pnlCheck.add(Box.createVerticalStrut(8));
     }
 }
 
@@ -306,12 +329,24 @@ public class PnlNhomQuyen extends JPanel {
     }
 
     private void clearForm() {
-        txtTen.setText("");
-        for (JCheckBox cb : checkBoxes) cb.setSelected(false);
-        for (JPanel p : mapPanelCon.values()) p.setVisible(false);
-        pnlCheck.revalidate();
-        pnlCheck.repaint();
+    txtTen.setText("");
+
+    for (JCheckBox cb : checkBoxes) {
+        cb.setSelected(false);
     }
+
+    for (JPanel panelCon : mapPanelCon.values()) {
+        panelCon.setVisible(true);
+        for (Component c : panelCon.getComponents()) {
+            if (c instanceof JCheckBox) {
+                ((JCheckBox) c).setSelected(false);
+            }
+        }
+    }
+
+    pnlCheck.revalidate();
+    pnlCheck.repaint();
+}
 
     public void applyPermissions(List<Integer> actionIds) {
         btnSave.setVisible(actionIds.contains(ActionConstants.THEM));
