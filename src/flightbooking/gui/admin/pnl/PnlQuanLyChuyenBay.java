@@ -75,6 +75,19 @@ public class PnlQuanLyChuyenBay extends JPanel {
 
         table.getColumnModel().getColumn(1).setMinWidth(0);
         table.getColumnModel().getColumn(1).setMaxWidth(0);
+
+        // --- THÊM ĐOẠN NÀY VÀO CUỐI CONSTRUCTOR ---
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                // Tự động load lại mọi thứ khi panel được hiển thị
+                loadTuyenBayToCombo();
+                loadMayBayToCombo();
+                loadHangHKToCombo();
+                reload();
+                // System.out.println("PnlQuanLyChuyenBay: Data auto-reloaded."); 
+            }
+        });
     }
 
     private JPanel buildForm() {

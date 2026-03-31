@@ -687,4 +687,21 @@ UIManager.put("Spinner.arrowButtonBorder", BorderFactory.createEmptyBorder());
             return s.contains(x, y);
         }
     }
+
+    private ImageIcon getIcon(String name) {
+    // Giả sử icon để trong src/resources/icons/
+    String path = "/resources/icons/" + name;
+    try {
+        java.net.URL imgURL = getClass().getResource(path);
+        if (imgURL != null) {
+            ImageIcon icon = new ImageIcon(imgURL);
+            // Resize về kích thước chuẩn (ví dụ 20x20)
+            Image img = icon.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        }
+    } catch (Exception e) {
+        System.err.println("Không tìm thấy icon: " + path);
+    }
+    return null;
+}
 }

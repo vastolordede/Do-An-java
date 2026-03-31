@@ -34,6 +34,9 @@ public class FrmQuanTri extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
+        // ✅ THÊM DÒNG NÀY: Mở rộng toàn màn hình (vẫn thấy Taskbar)
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         int nhomId = SessionContext.getAdminNhomQuyenId();
         boolean isAdmin = (nhomId == 1);
 
@@ -172,57 +175,80 @@ SwingUtilities.updateComponentTreeUI(this);
     p.setBackground(AdminTheme.SIDEBAR_BG);
     p.setPreferredSize(new Dimension(240, 0));
 
-    JLabel title = new JLabel("ADMIN MENU");
-    title.setFont(new Font("Segoe UI", Font.BOLD, 18));
-    title.setForeground(Color.WHITE);
-    title.setAlignmentX(Component.LEFT_ALIGNMENT);
+    // --- Khởi tạo các Button ---
+    JButton btnMayBay      = AdminTheme.createSidebarButton("Quản lý Máy bay");
+    JButton btnSanBay      = AdminTheme.createSidebarButton("Quản lý Sân bay");
+    JButton btnTuyenBay    = AdminTheme.createSidebarButton("Quản lý Tuyến bay");
+    JButton btnChuyenBay   = AdminTheme.createSidebarButton("Quản lý Chuyến bay");
+    JButton btnHHK         = AdminTheme.createSidebarButton("Quản lý Hãng hàng không");
+    JButton btnDatVe       = AdminTheme.createSidebarButton("Đặt vé (quầy)");
+    JButton btnQuanLyVe    = AdminTheme.createSidebarButton("Quản lý vé");
+    JButton btnThongKe     = AdminTheme.createSidebarButton("Thống kê vé");
+    JButton btnNhanVien    = AdminTheme.createSidebarButton("Quản lý nhân viên");
+    JButton btnNhomQuyen   = AdminTheme.createSidebarButton("Quản lý nhóm quyền");
 
-    JButton btnMayBay    = AdminTheme.createSidebarButton("Quản lý Máy bay");
-    JButton btnSanBay    = AdminTheme.createSidebarButton("Quản lý Sân bay");
-    JButton btnTuyenBay  = AdminTheme.createSidebarButton("Quản lý Tuyến bay");
-    JButton btnChuyenBay = AdminTheme.createSidebarButton("Quản lý Chuyến bay");
-    JButton btnHHK       = AdminTheme.createSidebarButton("Quản lý Hãng hàng không");
-    JButton btnDatVe     = AdminTheme.createSidebarButton("Đặt vé (quầy)");
-    JButton btnQuanLyVe  = AdminTheme.createSidebarButton("Quản lý vé");
-    JButton btnThongKe   = AdminTheme.createSidebarButton("Thống kê");
-    JButton btnNhanVien  = AdminTheme.createSidebarButton("Quản lý nhân viên");
-    JButton btnNhomQuyen = AdminTheme.createSidebarButton("Quản lý nhóm quyền");
+    // ==========================================
+    // PHẦN 1: QUẢN LÝ CHUNG
+    // ==========================================
+    JLabel lblChung = new JLabel("QUẢN LÝ CHUNG");
+    lblChung.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    lblChung.setForeground(Color.WHITE); // Màu trắng theo yêu cầu
+    p.add(lblChung);
+    p.add(Box.createVerticalStrut(12));
 
-    p.add(title);
-    p.add(Box.createVerticalStrut(16));
-
-    if (isAdmin || AuthUtil.hasPermission(Permission.SAN_BAY)) {
-        p.add(btnSanBay);
-        p.add(Box.createVerticalStrut(8));
-    }
-    if (isAdmin || AuthUtil.hasPermission(Permission.TUYEN_BAY)) {
-        p.add(btnTuyenBay);
-        p.add(Box.createVerticalStrut(8));
-    }
-    if (isAdmin || AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
-        p.add(btnQuanLyVe);
-        p.add(Box.createVerticalStrut(8));
-    }
-    if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
-        p.add(btnThongKe);
-        p.add(Box.createVerticalStrut(8));
-    }
-    if (isAdmin || AuthUtil.hasPermission(Permission.CHUYEN_BAY)) {
-        p.add(btnChuyenBay);
-        p.add(Box.createVerticalStrut(8));
-    }
-    if (isAdmin || AuthUtil.hasPermission(Permission.DAT_VE_ADMIN)) {
-        p.add(btnDatVe);
-        p.add(Box.createVerticalStrut(8));
-    }
+    // 1. Hãng hàng không
     if (isAdmin || AuthUtil.hasPermission(Permission.HANG_HANG_KHONG)) {
         p.add(btnHHK);
         p.add(Box.createVerticalStrut(8));
     }
+    // 2. Máy bay
     if (isAdmin || AuthUtil.hasPermission(Permission.MAY_BAY)) {
         p.add(btnMayBay);
         p.add(Box.createVerticalStrut(8));
     }
+    // 3. Sân bay
+    if (isAdmin || AuthUtil.hasPermission(Permission.SAN_BAY)) {
+        p.add(btnSanBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    // 4. Tuyến bay
+    if (isAdmin || AuthUtil.hasPermission(Permission.TUYEN_BAY)) {
+        p.add(btnTuyenBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    // 5. Chuyến bay
+    if (isAdmin || AuthUtil.hasPermission(Permission.CHUYEN_BAY)) {
+        p.add(btnChuyenBay);
+        p.add(Box.createVerticalStrut(8));
+    }
+    // 6. Quản lý vé
+    if (isAdmin || AuthUtil.hasPermission(Permission.QUAN_LY_VE)) {
+        p.add(btnQuanLyVe);
+        p.add(Box.createVerticalStrut(8));
+    }
+    // 7. Thống kê vé
+    if (isAdmin || AuthUtil.hasPermission(Permission.THONG_KE)) {
+        p.add(btnThongKe);
+        p.add(Box.createVerticalStrut(8));
+    }
+    // 8. Đặt vé
+    if (isAdmin || AuthUtil.hasPermission(Permission.DAT_VE_ADMIN)) {
+        p.add(btnDatVe);
+        p.add(Box.createVerticalStrut(8));
+    }
+
+    // Khoảng cách giữa 2 phân đoạn
+    p.add(Box.createVerticalStrut(25));
+
+    // ==========================================
+    // PHẦN 2: HỆ THỐNG
+    // ==========================================
+    JLabel lblHeThong = new JLabel("HỆ THỐNG");
+    lblHeThong.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    lblHeThong.setForeground(Color.WHITE); // Màu trắng theo yêu cầu
+    p.add(lblHeThong);
+    p.add(Box.createVerticalStrut(12));
+
     if (isAdmin || AuthUtil.hasPermission(Permission.NHAN_VIEN)) {
         p.add(btnNhanVien);
         p.add(Box.createVerticalStrut(8));
@@ -234,6 +260,7 @@ SwingUtilities.updateComponentTreeUI(this);
 
     p.add(Box.createVerticalGlue());
 
+    // --- Action Listeners ---
     btnMayBay.addActionListener(e    -> nav.show("MAY_BAY"));
     btnSanBay.addActionListener(e    -> nav.show("SAN_BAY"));
     btnTuyenBay.addActionListener(e  -> nav.show("TUYEN_BAY"));

@@ -37,6 +37,13 @@ public class PnlQuanLyHHK extends JPanel {
         add(AdminTheme.wrapTable(table), BorderLayout.CENTER);
         table.getSelectionModel().addListSelectionListener(e -> fillForm());
         reload();
+        // Thêm Listener này vào Constructor của PnlQuanLyHHK
+        this.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                reload(); // Tự động load lại mỗi khi Panel này được hiển thị
+            }
+        });
     }
 
     private JComponent buildTop() {
