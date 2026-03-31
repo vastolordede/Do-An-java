@@ -29,7 +29,7 @@ public class PnlQuanLySanBay extends JPanel {
     private JButton btnDelete;
     private JButton btnExport;
     private JButton btnImport;
-    private JButton btnReload;
+    // private JButton btnReload;
 
     public PnlQuanLySanBay() {
         setLayout(new BorderLayout(10, 10));
@@ -56,21 +56,21 @@ public class PnlQuanLySanBay extends JPanel {
         fc.gridx = 5; fc.gridy = 0; AdminTheme.styleSoftTextField(txtQuocGia); form.add(txtQuocGia, fc);
 
         // ✅ Dùng createActionButton
-        btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+        // btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
         btnAdd    = AdminTheme.createActionButton("Thêm",       AdminTheme.ButtonRole.ADD);
         btnUpdate = AdminTheme.createActionButton("Sửa",        AdminTheme.ButtonRole.EDIT  );
         btnDelete = AdminTheme.createActionButton("Xóa",        AdminTheme.ButtonRole.DELETE);
         btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
         btnImport = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
 
-        btnReload.addActionListener(e -> reloadData());
+        // btnReload.addActionListener(e -> reloadData());
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
         btnDelete.addActionListener(e -> delete());
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
 
-        return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+        return AdminTheme.wrapFormCard(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
     }
 
     private void reload() {

@@ -124,105 +124,79 @@ public class NhanVienDAO extends BaseDAO {
 
     // ================= INSERT =================
     public int insert(NhanVienDTO nv) {
-        String sql =
-                "INSERT INTO nhanvien(" +
-                "hoten, dienthoai, email, phongban_id, chucvu_id, " +
-                "ngayvaolam, trangthai, luongcoban) " +
-                "VALUES(?,?,?,?,?,?,?,?) RETURNING nhanvien_id";
+    String sql =
+            "INSERT INTO nhanvien(" +
+            "hoten, dienthoai, email, phongban_id, chucvu_id, " +
+            "ngayvaolam, trangthai, ngaynghi, luongcoban) " +
+            "VALUES(?,?,?,?,?,?,?,?,?) RETURNING nhanvien_id";
 
-        try (Connection c = getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, nv.getHoTen());
-            ps.setString(2, nv.getDienThoai());
-            ps.setString(3, nv.getEmail());
+        ps.setString(1, nv.getHoTen());
+        ps.setString(2, nv.getDienThoai());
+        ps.setString(3, nv.getEmail());
 
-            if (nv.getPhongBanId() != null)
-                ps.setInt(4, nv.getPhongBanId());
-            else
-                ps.setNull(4, Types.INTEGER);
+        if (nv.getPhongBanId() != null) ps.setInt(4, nv.getPhongBanId());
+        else ps.setNull(4, Types.INTEGER);
 
-            if (nv.getChucVuId() != null)
-                ps.setInt(5, nv.getChucVuId());
-            else
-                ps.setNull(5, Types.INTEGER);
+        if (nv.getChucVuId() != null) ps.setInt(5, nv.getChucVuId());
+        else ps.setNull(5, Types.INTEGER);
 
-            if (nv.getNgayVaoLam() != null)
-                ps.setDate(6, Date.valueOf(nv.getNgayVaoLam()));
-            else
-                ps.setNull(6, Types.DATE);
+        // thêm mới: luôn null
+        ps.setNull(6, Types.DATE);
 
-            ps.setInt(7, nv.getTrangThai());
-            if (nv.getLuongCoBan() != null)
-                ps.setBigDecimal(8, nv.getLuongCoBan());
-            else
-                ps.setNull(8, Types.NUMERIC);
+        ps.setInt(7, nv.getTrangThai());
 
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
+        // thêm mới: luôn null
+        ps.setNull(8, Types.DATE);
+        ps.setNull(9, Types.NUMERIC);
+
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
             }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("nhanvien insert failed", e);
         }
 
-        return -1;
+    } catch (SQLException e) {
+        throw new RuntimeException("nhanvien insert failed", e);
     }
+
+    return -1;
+}
 
     // ================= UPDATE =================
     public void update(NhanVienDTO nv) {
-        String sql =
-                "UPDATE nhanvien SET hoten=?, dienthoai=?, email=?, phongban_id=?, " +
-                "chucvu_id=?, ngayvaolam=?, trangthai=?, ngaynghi=?, luongcoban=? " +
-                "WHERE nhanvien_id=?";
+    String sql =
+            "UPDATE nhanvien SET hoten=?, dienthoai=?, email=?, phongban_id=?, " +
+            "chucvu_id=?, trangthai=? " +
+            "WHERE nhanvien_id=?";
 
-        try (Connection c = getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setString(1, nv.getHoTen());
-            ps.setString(2, nv.getDienThoai());
-            ps.setString(3, nv.getEmail());
+        ps.setString(1, nv.getHoTen());
+        ps.setString(2, nv.getDienThoai());
+        ps.setString(3, nv.getEmail());
 
-            if (nv.getPhongBanId() != null)
-                ps.setInt(4, nv.getPhongBanId());
-            else
-                ps.setNull(4, Types.INTEGER);
+        if (nv.getPhongBanId() != null) ps.setInt(4, nv.getPhongBanId());
+        else ps.setNull(4, Types.INTEGER);
 
-            if (nv.getChucVuId() != null)
-                ps.setInt(5, nv.getChucVuId());
-            else
-                ps.setNull(5, Types.INTEGER);
+        if (nv.getChucVuId() != null) ps.setInt(5, nv.getChucVuId());
+        else ps.setNull(5, Types.INTEGER);
 
-            if (nv.getNgayVaoLam() != null)
-                ps.setDate(6, Date.valueOf(nv.getNgayVaoLam()));
-            else
-                ps.setNull(6, Types.DATE);
+        ps.setInt(6, nv.getTrangThai());
+        ps.setInt(7, nv.getNhanVienId());
 
-            ps.setInt(7, nv.getTrangThai());
-
-            if (nv.getNgayNghi() != null)
-                ps.setDate(8, Date.valueOf(nv.getNgayNghi()));
-            else
-                ps.setNull(8, Types.DATE);
-
-            if (nv.getLuongCoBan() != null)
-                ps.setBigDecimal(9, nv.getLuongCoBan());
-            else
-                ps.setNull(9, Types.NUMERIC);
-            ps.setInt(10, nv.getNhanVienId());
-
-            int rows = ps.executeUpdate();
-            
-            if (rows == 0) {
-                throw new RuntimeException("Không tìm thấy nhân viên để cập nhật!");
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("nhanvien update failed", e);
+        int rows = ps.executeUpdate();
+        if (rows == 0) {
+            throw new RuntimeException("Không tìm thấy nhân viên để cập nhật!");
         }
+
+    } catch (SQLException e) {
+        throw new RuntimeException("nhanvien update failed", e);
     }
+}
 
     // ================= SOFT DELETE =================
     public void softDelete(int id) {

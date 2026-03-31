@@ -36,7 +36,7 @@ public class PnlThongKe extends JPanel {
 
     // ✅ Dùng createActionButton
     private final JButton btnLoc      = AdminTheme.createActionButton("Lọc",        AdminTheme.ButtonRole.NEUTRAL);
-    private final JButton btnLamMoi   = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+    // private final JButton btnLamMoi   = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
     private final JButton btnXuatExcel = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
 
     private final DecimalFormat moneyFormat = new DecimalFormat("#,##0");
@@ -48,8 +48,16 @@ public class PnlThongKe extends JPanel {
         add(buildTop(), BorderLayout.NORTH);
         add(buildCenter(), BorderLayout.CENTER);
         btnLoc.addActionListener(e -> loadData());
-        btnLamMoi.addActionListener(e -> lamMoi());
+        // btnLamMoi.addActionListener(e -> lamMoi());
         loadData();
+
+        // ✅ Tự động cập nhật thống kê mỗi khi vào tab
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Override
+        public void componentShown(java.awt.event.ComponentEvent e) {
+            lamMoi(); // Reset ngày về hôm nay và tải lại số liệu
+        }
+    });
     }
 
     private void initDateSpinner() {
@@ -70,7 +78,7 @@ public class PnlThongKe extends JPanel {
         JPanel filter = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         filter.add(new JLabel("Từ ngày:")); filter.add(spFromDate);
         filter.add(new JLabel("Đến ngày:")); filter.add(spToDate);
-        filter.add(btnLoc); filter.add(btnLamMoi); filter.add(btnXuatExcel);
+        filter.add(btnLoc); filter.add(btnXuatExcel);
 
         JPanel cards = new JPanel(new GridLayout(1, 4, 10, 10));
         cards.add(createCard("Tổng doanh thu", lblTongDoanhThu));

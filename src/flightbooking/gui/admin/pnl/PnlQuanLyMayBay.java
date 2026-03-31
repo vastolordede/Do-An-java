@@ -38,7 +38,7 @@ public class PnlQuanLyMayBay extends JPanel {
     private JButton btnGen;
     private JButton btnExport;
     private JButton btnImport;
-    private JButton btnReload;
+    // private JButton btnReload;
 
     public PnlQuanLyMayBay() {
         setLayout(new BorderLayout(10, 10));
@@ -64,7 +64,7 @@ public class PnlQuanLyMayBay extends JPanel {
         fc.gridx = 3; fc.gridy = 0; form.add(txtKieu, fc);
 
         // ✅ Dùng createActionButton
-        btnReload = AdminTheme.createActionButton("Làm mới",                       AdminTheme.ButtonRole.NEUTRAL);
+        // btnReload = AdminTheme.createActionButton("Làm mới",                       AdminTheme.ButtonRole.NEUTRAL);
         btnAdd    = AdminTheme.createActionButton("Thêm",                          AdminTheme.ButtonRole.ADD);
         btnUpdate = AdminTheme.createActionButton("Sửa",                           AdminTheme.ButtonRole.EDIT  );
         btnDelete = AdminTheme.createActionButton("Xóa",                           AdminTheme.ButtonRole.DELETE);
@@ -72,7 +72,7 @@ public class PnlQuanLyMayBay extends JPanel {
         btnImport = AdminTheme.createActionButton("Nhập Excel",                    AdminTheme.ButtonRole.NEUTRAL);
         btnGen    = AdminTheme.createActionButton("Tạo ghế cho máy bay đang chọn", AdminTheme.ButtonRole.NEUTRAL);
 
-        btnReload.addActionListener(e -> reloadData());
+        // btnReload.addActionListener(e -> reloadData());
         btnAdd.addActionListener(e -> addMayBay());
         btnUpdate.addActionListener(e -> updateMayBay());
         btnDelete.addActionListener(e -> deleteMayBay());
@@ -80,7 +80,7 @@ public class PnlQuanLyMayBay extends JPanel {
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
 
-        return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport, btnGen);
+        return AdminTheme.wrapFormCard(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport, btnGen);
     }
 
     private void reload() {

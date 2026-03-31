@@ -49,6 +49,14 @@ public class PnlQuanLyVe extends JPanel {
     });
     
         loadData();
+
+        // ✅ Tự động reload khi tab được hiển thị (người dùng click vào tab này từ Sidebar)
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Override
+        public void componentShown(java.awt.event.ComponentEvent e) {
+            lamMoi(); // Gọi lamMoi để xóa các filter cũ và tải dữ liệu mới nhất
+        }
+    });
     }
 
     private JComponent buildTop() {
@@ -73,16 +81,16 @@ public class PnlQuanLyVe extends JPanel {
 
         // ✅ Dùng createActionButton
         btnLoc    = AdminTheme.createActionButton("Lọc",        AdminTheme.ButtonRole.NEUTRAL);
-        btnLamMoi = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+        // btnLamMoi = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
         btnHuyVe  = AdminTheme.createActionButton("Hủy vé",     AdminTheme.ButtonRole.NEUTRAL);
         btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
 
         btnLoc.addActionListener(e -> loadData());
-        btnLamMoi.addActionListener(e -> lamMoi());
+        // btnLamMoi.addActionListener(e -> lamMoi());
         btnHuyVe.addActionListener(e -> huyVeSelected());
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
 
-        return AdminTheme.wrapFormCard(form, btnLoc, btnLamMoi, btnHuyVe, btnExport);
+        return AdminTheme.wrapFormCard(form, btnLoc, btnHuyVe, btnExport);
     }
 
     private JComponent buildCenter() {

@@ -33,7 +33,7 @@ public class PnlDatVeAdmin extends JPanel {
     private JButton btnTaoVe;
     private JButton btnExport;
     private JButton btnImport;
-    private JButton btnReload;
+    // private JButton btnReload;
     private JButton btnChonGhe;
 
     private final JComboBox<ChuyenItem> cbChuyen = new JComboBox<>();
@@ -140,7 +140,7 @@ public class PnlDatVeAdmin extends JPanel {
         form.setOpaque(false);
 
         // ✅ Tạo nút bằng createActionButton — paintComponent không bị LAF override
-        btnReload  = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+        // btnReload  = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
         btnTaoVe   = AdminTheme.createActionButton("Tạo vé",     AdminTheme.ButtonRole.NEUTRAL);
         btnExport  = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
         btnImport  = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
@@ -177,12 +177,12 @@ public class PnlDatVeAdmin extends JPanel {
         lc.gridx = 4; lc.gridy = 1; form.add(makeLabel("Thanh toán"), lc);
         fc.gridx = 5; fc.gridy = 1; form.add(cbPay, fc);
 
-        btnReload.addActionListener(e -> reloadData());
+        // btnReload.addActionListener(e -> reloadData());
         btnExport.addActionListener(e -> ExcelExporter.export(tableVe, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(tableVe, this));
         btnTaoVe.addActionListener(e -> taoVe());
 
-        return AdminTheme.wrapFormCard(form, btnReload, btnTaoVe, btnExport, btnImport);
+        return AdminTheme.wrapFormCard(form, btnTaoVe, btnExport, btnImport);
     }
 
     private void loadChuyenBay() {

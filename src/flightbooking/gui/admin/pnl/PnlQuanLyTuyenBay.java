@@ -43,6 +43,14 @@ public class PnlQuanLyTuyenBay extends JPanel {
         loadSanBayToCombo();
         reload();
         table.getSelectionModel().addListSelectionListener(e -> fillFormFromSelectedRow());
+
+        // ✅ Tự động reload khi tab được hiển thị
+    this.addComponentListener(new java.awt.event.ComponentAdapter() {
+        @Override
+        public void componentShown(java.awt.event.ComponentEvent e) {
+            reloadData();
+        }
+    });
     }
 
     private JPanel buildForm() {
@@ -61,21 +69,21 @@ public class PnlQuanLyTuyenBay extends JPanel {
         fc.gridx = 5; fc.gridy = 0; form.add(spSoDam, fc);
 
         // ✅ Dùng createActionButton
-        btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
+        // btnReload = AdminTheme.createActionButton("Làm mới",    AdminTheme.ButtonRole.NEUTRAL);
         btnAdd    = AdminTheme.createActionButton("Thêm",       AdminTheme.ButtonRole.ADD);
         btnUpdate = AdminTheme.createActionButton("Sửa",        AdminTheme.ButtonRole.EDIT  );
         btnDelete = AdminTheme.createActionButton("Xóa",        AdminTheme.ButtonRole.DELETE);
         btnExport = AdminTheme.createActionButton("Xuất Excel", AdminTheme.ButtonRole.NEUTRAL);
         btnImport = AdminTheme.createActionButton("Nhập Excel", AdminTheme.ButtonRole.NEUTRAL);
 
-        btnReload.addActionListener(e -> reloadData());
+        // btnReload.addActionListener(e -> reloadData());
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
         btnDelete.addActionListener(e -> delete());
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
 
-        return AdminTheme.wrapFormCard(form, btnReload, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
+        return AdminTheme.wrapFormCard(form, btnAdd, btnUpdate, btnDelete, btnExport, btnImport);
     }
 
     private void loadSanBayToCombo() {

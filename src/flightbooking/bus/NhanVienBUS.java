@@ -119,13 +119,14 @@ public void khoiPhucNhanVien(int id) {
         nv.setEmail(nv.getEmail().trim().toLowerCase());
 
         // ===== Lương =====
-        if (nv.getLuongCoBan() == null ||
-            nv.getLuongCoBan().compareTo(BigDecimal.ZERO) <= 0)
-            throw new RuntimeException("Lương phải lớn hơn 0!");
+// cho phép null, nếu có nhập thì phải > 0
+if (nv.getLuongCoBan() != null &&
+    nv.getLuongCoBan().compareTo(BigDecimal.ZERO) <= 0) {
+    throw new RuntimeException("Lương phải lớn hơn 0!");
+}
 
-        // ===== Ngày vào làm =====
-        if (nv.getNgayVaoLam() == null)
-            throw new RuntimeException("Ngày vào làm không được để trống!");
+// ===== Ngày vào làm =====
+// cho phép null
 
         // ===== Phòng ban =====
         if (nv.getPhongBanId() != null) {
