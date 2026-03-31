@@ -176,16 +176,16 @@ SwingUtilities.updateComponentTreeUI(this);
     p.setPreferredSize(new Dimension(240, 0));
 
     // --- Khởi tạo các Button ---
-    JButton btnMayBay      = AdminTheme.createSidebarButton("Quản lý Máy bay");
-    JButton btnSanBay      = AdminTheme.createSidebarButton("Quản lý Sân bay");
-    JButton btnTuyenBay    = AdminTheme.createSidebarButton("Quản lý Tuyến bay");
-    JButton btnChuyenBay   = AdminTheme.createSidebarButton("Quản lý Chuyến bay");
-    JButton btnHHK         = AdminTheme.createSidebarButton("Quản lý Hãng hàng không");
-    JButton btnDatVe       = AdminTheme.createSidebarButton("Đặt vé (quầy)");
-    JButton btnQuanLyVe    = AdminTheme.createSidebarButton("Quản lý vé");
-    JButton btnThongKe     = AdminTheme.createSidebarButton("Thống kê vé");
-    JButton btnNhanVien    = AdminTheme.createSidebarButton("Quản lý nhân viên");
-    JButton btnNhomQuyen   = AdminTheme.createSidebarButton("Quản lý nhóm quyền");
+    JButton btnMayBay      = AdminTheme.createSidebarButton("Quản lý Máy bay", "/icons/plane-solid.png");
+    JButton btnSanBay      = AdminTheme.createSidebarButton("Quản lý Sân bay", "/icons/sanbay.png");
+    JButton btnTuyenBay    = AdminTheme.createSidebarButton("Quản lý Tuyến bay", "/icons/route-solid.png");
+    JButton btnChuyenBay   = AdminTheme.createSidebarButton("Quản lý Chuyến bay", "/icons/chuyenbay.png");
+    JButton btnHHK         = AdminTheme.createSidebarButton("Quản lý Hãng hàng không", "/icons/hhk.png");
+    JButton btnDatVe       = AdminTheme.createSidebarButton("Đặt vé (quầy)", "/icons/datve.png");
+    JButton btnQuanLyVe    = AdminTheme.createSidebarButton("Quản lý vé", "/icons/quanlyve.png");
+    JButton btnThongKe     = AdminTheme.createSidebarButton("Thống kê vé", "/icons/thongke.png");
+    JButton btnNhanVien    = AdminTheme.createSidebarButton("Quản lý nhân viên", "/icons/nvien.png");
+    JButton btnNhomQuyen   = AdminTheme.createSidebarButton("Quản lý nhóm quyền", "/icons/nhomquyen.png");
 
     // ==========================================
     // PHẦN 1: QUẢN LÝ CHUNG

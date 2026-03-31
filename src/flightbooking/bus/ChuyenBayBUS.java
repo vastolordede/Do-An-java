@@ -82,4 +82,11 @@ public class ChuyenBayBUS {
         throw new RuntimeException("Lỗi timChuyenTheoNgay: " + e.getMessage(), e);
     }
 }
+public boolean mayBayDaDuocGanChuyenBay(int mayBayId) {
+    try {
+        return dao.existsByMayBayId(mayBayId);
+    } catch (SQLException e) {
+        throw new RuntimeException("Lỗi kiểm tra máy bay đã được tạo chuyến bay: " + e.getMessage(), e);
+    }
+}
 }

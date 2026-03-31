@@ -48,18 +48,18 @@ public class AppNavigator {
         sidebar.setPreferredSize(new Dimension(180, 0));
 
         sidebar.add(Box.createVerticalStrut(8));
-        addItem(sidebar, "Tìm chuyến", "TIM_CHUYEN");
-        addItem(sidebar, "Kết quả",    "KQ_CHUYEN");
-        addItem(sidebar, "Chọn ghế",   "CHON_GHE");
-        addItem(sidebar, "Hành khách", "HANH_KHACH");
-        addItem(sidebar, "Xác nhận",   "XAC_NHAN");
+        addItem(sidebar, "Tìm chuyến", "TIM_CHUYEN", "icons/timchuyen.png");
+        addItem(sidebar, "Kết quả",    "KQ_CHUYEN", "icons/ketqua.png");
+        addItem(sidebar, "Chọn ghế",   "CHON_GHE", "icons/ghe.png");
+        addItem(sidebar, "Hành khách", "HANH_KHACH", "icons/khach.png");
+        addItem(sidebar, "Xác nhận",   "XAC_NHAN", "icons/xacnhan.png");
         sidebar.add(Box.createVerticalGlue());
 
         return sidebar;
     }
 
-    private void addItem(JPanel sidebar, String label, String screenName) {
-        SidebarItem item = new SidebarItem(label, () -> show(screenName));
+    private void addItem(JPanel sidebar, String label, String screenName, String icon) {
+        SidebarItem item = new SidebarItem(label, icon, () -> show(screenName));
         item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
         sidebarItems.put(screenName, item);
         sidebar.add(item);

@@ -87,52 +87,75 @@ UIManager.put("Spinner.arrowButtonBorder", BorderFactory.createEmptyBorder());
     // =========================================================
     // SIDEBAR
     // =========================================================
-    public static JButton createSidebarButton(String text) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    public static JButton createSidebarButton(String text, String iconPath) {
 
-                Color bg;
-                if (getModel().isPressed()) {
-                    bg = PRIMARY_DARK;
-                } else if (getModel().isRollover()) {
-                    bg = new Color(255, 255, 255, 35);
-                } else {
-                    bg = new Color(255, 255, 255, 18);
-                }
-
-                g2.setColor(bg);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
-
-                g2.setColor(new Color(255, 255, 255, 190));
-                g2.setStroke(new BasicStroke(1.2f));
-                g2.draw(new RoundRectangle2D.Float(0.6f, 0.6f, getWidth() - 1.2f, getHeight() - 1.2f, 12, 12));
-
-                g2.setColor(TEXT_LIGHT);
-                g2.setFont(getFont().deriveFont(Font.BOLD, 13f));
-                FontMetrics fm = g2.getFontMetrics();
-                int x = 14;
-                int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
-                g2.drawString(getText(), x, y);
-
-                g2.dispose();
-            }
-        };
-
-        btn.setContentAreaFilled(false);
-        btn.setBorderPainted(false);
-        btn.setFocusPainted(false);
-        btn.setOpaque(false);
-        btn.setForeground(TEXT_LIGHT);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setPreferredSize(new Dimension(210, 42));
-        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
-        return btn;
+    final ImageIcon icon;
+    if (iconPath != null) {
+        java.net.URL url = AdminTheme.class.getResource(iconPath);
+        if (url != null) {
+            Image img = new ImageIcon(url).getImage()
+                    .getScaledInstance(18, 18, Image.SCALE_SMOOTH);
+            icon = new ImageIcon(img);
+        } else {
+            icon = null;
+        }
+    } else {
+        icon = null;
     }
+
+    JButton btn = new JButton(text) {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            Color bg;
+            if (getModel().isPressed()) {
+                bg = PRIMARY_DARK;
+            } else if (getModel().isRollover()) {
+                bg = new Color(255, 255, 255, 35);
+            } else {
+                bg = new Color(255, 255, 255, 18);
+            }
+
+            g2.setColor(bg);
+            g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 12, 12));
+
+            g2.setColor(new Color(255, 255, 255, 190));
+            g2.setStroke(new BasicStroke(1.2f));
+            g2.draw(new RoundRectangle2D.Float(0.6f, 0.6f, getWidth() - 1.2f, getHeight() - 1.2f, 12, 12));
+
+            g2.setColor(TEXT_LIGHT);
+            g2.setFont(getFont().deriveFont(Font.BOLD, 13f));
+            FontMetrics fm = g2.getFontMetrics();
+            int x = 14;
+
+            if (icon != null) {
+                int iconY = (getHeight() - icon.getIconHeight()) / 2;
+                g2.drawImage(icon.getImage(), x, iconY, null);
+                x += icon.getIconWidth() + 10;
+            }
+
+            int y = (getHeight() + fm.getAscent() - fm.getDescent()) / 2;
+            g2.drawString(getText(), x, y);
+
+            g2.dispose();
+        }
+    };
+
+    btn.setContentAreaFilled(false);
+    btn.setBorderPainted(false);
+    btn.setFocusPainted(false);
+    btn.setOpaque(false);
+    btn.setForeground(TEXT_LIGHT);
+    btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+    btn.setHorizontalAlignment(SwingConstants.LEFT);
+    btn.setPreferredSize(new Dimension(210, 42));
+    btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+
+    return btn;
+}
 
     // =========================================================
     // HEADER
@@ -690,7 +713,7 @@ UIManager.put("Spinner.arrowButtonBorder", BorderFactory.createEmptyBorder());
 
     private ImageIcon getIcon(String name) {
     // Giả sử icon để trong src/resources/icons/
-    String path = "/resources/icons/" + name;
+    String path = "/icons/" + name;
     try {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {

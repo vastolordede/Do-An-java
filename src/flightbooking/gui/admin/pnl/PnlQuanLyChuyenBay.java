@@ -44,7 +44,7 @@ public class PnlQuanLyChuyenBay extends JPanel {
     private JButton btnDelete;
     private JButton btnGiaHang;
     private JButton btnSeatMap;
-    private JButton btnReload;
+    
     private JButton btnExport;
     private JButton btnImport;
 
@@ -110,7 +110,7 @@ spGioDen.setEditor(new JSpinner.DateEditor(spGioDen, "yyyy-MM-dd HH:mm"));
         form.add(new JLabel("Trạng thái")); form.add(cbTrangThai);
 
         // ✅ Dùng createActionButton
-        btnReload   = AdminTheme.createActionButton("Làm mới",       AdminTheme.ButtonRole.NEUTRAL);
+       
         btnAdd      = AdminTheme.createActionButton("Thêm",          AdminTheme.ButtonRole.ADD);
         btnUpdate   = AdminTheme.createActionButton("Sửa",           AdminTheme.ButtonRole.EDIT  );
         btnDelete   = AdminTheme.createActionButton("Xóa",           AdminTheme.ButtonRole.DELETE);
@@ -126,15 +126,9 @@ spGioDen.setEditor(new JSpinner.DateEditor(spGioDen, "yyyy-MM-dd HH:mm"));
         btnGiaHang.addActionListener(e -> openGiaHangDialog());
         btnExport.addActionListener(e -> ExcelExporter.export(table, this));
         btnImport.addActionListener(e -> ExcelImporter.importToTable(table, this));
-        btnReload.addActionListener(e -> {
-            loadTuyenBayToCombo();
-            loadMayBayToCombo();
-            reload();
-            JOptionPane.showMessageDialog(this, "Dữ liệu đã được cập nhật mới nhất!");
-        });
-
+       
         return AdminTheme.wrapFormCard(form,
-                btnReload, btnAdd, btnUpdate, btnDelete,
+                btnAdd, btnUpdate, btnDelete,
                 btnGiaHang, btnSeatMap, btnExport, btnImport);
     }
 

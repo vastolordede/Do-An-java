@@ -2,10 +2,12 @@ package flightbooking.gui.user.common;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicButtonUI;
+
+import flightbooking.util.IconUtil;
+
 import java.awt.*;
 
 public class SidebarItem extends JButton {
-
     private static final Color BG_NORMAL = Color.WHITE;
     private static final Color BG_HOVER  = new Color(255, 235, 235);
     private static final Color BG_ACTIVE = new Color(255, 235, 235);
@@ -15,7 +17,7 @@ public class SidebarItem extends JButton {
     private boolean active = false;
     private boolean hovering = false;
 
-    public SidebarItem(String text, Runnable action) {
+    public SidebarItem(String text, String iconPath, Runnable action) {
         setText(text);
         setUI(new BasicButtonUI()); // 🔥 chặn L&F override
         setFocusPainted(false);
@@ -27,6 +29,9 @@ public class SidebarItem extends JButton {
         setBorder(BorderFactory.createEmptyBorder(10, 16, 10, 10));
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setForeground(FG_NORMAL);
+
+        setIcon(IconUtil.getIcon(iconPath, 18, 18));
+        setIconTextGap(12);
 
         addActionListener(e -> action.run());
 

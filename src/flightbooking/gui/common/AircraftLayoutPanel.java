@@ -11,16 +11,8 @@ public class AircraftLayoutPanel extends JPanel {
     public AircraftLayoutPanel(JComponent seatMapComponent) {
         this.seatMapComponent = seatMapComponent;
 
-        setLayout(new GridBagLayout());
+        setLayout(null);
         setBackground(new Color(235, 235, 235));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.fill = GridBagConstraints.NONE;
 
         if (seatMapComponent instanceof JScrollPane) {
             JScrollPane scroll = (JScrollPane) seatMapComponent;
@@ -31,7 +23,7 @@ public class AircraftLayoutPanel extends JPanel {
             seatMapComponent.setOpaque(false);
         }
 
-        add(seatMapComponent, gbc);
+        add(seatMapComponent);
     }
 
     @Override
@@ -52,14 +44,21 @@ public class AircraftLayoutPanel extends JPanel {
             int seatW = Math.max(500, contentSize.width);
             int seatH = Math.max(260, contentSize.height);
 
-            int planeH = Math.max(320, seatH + 90);
+            int topInset = 48;
+            int bottomInset = 48;
+            int leftInset = 150;
+            int rightInset = Math.max(90, (int) (seatW * 0.08));
+
+            int bodyH = seatH + topInset + bottomInset;
+            int planeH = Math.max(320, bodyH);
 
             int planeX = 10;
             int planeY = Math.max(18, (panelH - planeH) / 2);
 
-            int noseW = 110;
+            int noseW = Math.max(95, (int) (bodyH * 0.34));
             int backPadding = 40;
-            int bodyW = seatW + 120;
+
+            int bodyW = leftInset + seatW + rightInset;
 
             int maxPlaneW = panelW - 20;
             int planeW = noseW + bodyW + backPadding;
@@ -70,24 +69,19 @@ public class AircraftLayoutPanel extends JPanel {
 
             int bodyX = planeX + noseW - 18;
             int bodyY = planeY;
-            int bodyH = planeH;
-            int tailRadius = 78;
+            int tailRadius = Math.max(60, (int) (bodyH * 0.24));
 
             Path2D.Double planeShape = new Path2D.Double();
             planeShape.moveTo(bodyX + 12, bodyY);
 
-            // cạnh trên
             planeShape.lineTo(bodyX + bodyW - tailRadius, bodyY);
             planeShape.quadTo(bodyX + bodyW, bodyY, bodyX + bodyW, bodyY + tailRadius);
 
-            // cạnh phải
             planeShape.lineTo(bodyX + bodyW, bodyY + bodyH - tailRadius);
             planeShape.quadTo(bodyX + bodyW, bodyY + bodyH, bodyX + bodyW - tailRadius, bodyY + bodyH);
 
-            // cạnh dưới
             planeShape.lineTo(bodyX + 12, bodyY + bodyH);
 
-            // đầu trái bo tròn nhưng vẫn nhọn
             planeShape.quadTo(planeX + 8, bodyY + bodyH * 0.82, planeX + 2, bodyY + bodyH / 2.0);
             planeShape.quadTo(planeX + 8, bodyY + bodyH * 0.18, bodyX + 12, bodyY);
 
@@ -100,35 +94,50 @@ public class AircraftLayoutPanel extends JPanel {
             g2.setStroke(new BasicStroke(3f));
             g2.draw(planeShape);
 
-            // 2 khối gần đầu máy bay
+            int availableSeatW = Math.max(200, bodyW - leftInset - rightInset);
+            int availableSeatH = Math.max(160, bodyH - topInset - bottomInset);
+
+            int realSeatW = Math.min(seatW, availableSeatW);
+            int realSeatH = Math.min(seatH, availableSeatH);
+
+            int seatX = bodyX + leftInset + Math.max(0, (availableSeatW - realSeatW) / 2);
+            int seatY = bodyY + topInset + Math.max(0, (availableSeatH - realSeatH) / 2);
+
+            seatMapComponent.setBounds(seatX, seatY, realSeatW, realSeatH);
+
             int block1W = 30;
-int block1H = 96;
-int block2W = 28;
-int block2H = 60;
+            int block1H = 96;
+            int block2W = 28;
+            int block2H = 60;
 
-int leftBlockX1 = bodyX + 14;
-int leftBlockY1 = bodyY + 118;
+            int leftBlockX1 = bodyX + 14;
+            int leftBlockY1 = bodyY + 118;
 
-int leftBlockX2 = bodyX + 10;
-int leftBlockY2 = bodyY + bodyH - 150;
+            int leftBlockX2 = bodyX + 10;
+            int leftBlockY2 = bodyY + bodyH - 150;
 
-drawCabinBlock(g2, leftBlockX1, leftBlockY1, block1W, block1H);
-drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
+            drawCabinBlock(g2, leftBlockX1, leftBlockY1, block1W, block1H);
+            drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
 
-            // cửa
             drawDoor(g2, bodyX + 32, bodyY + bodyH - 118, "DOOR");
 
-            // WC
             drawWc(g2, bodyX + 50, bodyY + 55);
             drawWc(g2, bodyX + bodyW - 85, bodyY + 55);
             drawWc(g2, bodyX + 50, bodyY + bodyH - 95);
             drawWc(g2, bodyX + bodyW - 85, bodyY + bodyH - 95);
 
-            // EXIT dưới
             drawExitBottom(g2, bodyX + bodyW / 2 - 60, bodyY + bodyH - 8);
 
         } finally {
             g2.dispose();
+        }
+    }
+
+    @Override
+    public void doLayout() {
+        super.doLayout();
+        if (seatMapComponent != null) {
+            repaint();
         }
     }
 
@@ -140,9 +149,12 @@ drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
                 Dimension d = vp.getView().getPreferredSize();
                 if (d != null) return d;
             }
-            return scroll.getPreferredSize();
+            Dimension d = scroll.getPreferredSize();
+            return d != null ? d : new Dimension(800, 320);
         }
-        return seatMapComponent.getPreferredSize();
+
+        Dimension d = seatMapComponent.getPreferredSize();
+        return d != null ? d : new Dimension(800, 320);
     }
 
     private void drawExitBottom(Graphics2D g2, int x, int y) {
@@ -163,6 +175,7 @@ drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
     private void drawDoor(Graphics2D g2, int x, int y, String text) {
         g2.setColor(new Color(250, 250, 250));
         g2.fillRoundRect(x, y, 34, 54, 10, 10);
+
         g2.setColor(new Color(110, 110, 110));
         g2.setStroke(new BasicStroke(2.5f));
         g2.drawRoundRect(x, y, 34, 54, 10, 10);
@@ -176,6 +189,7 @@ drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
     private void drawWc(Graphics2D g2, int x, int y) {
         g2.setColor(new Color(245, 245, 245));
         g2.fillRoundRect(x, y, 42, 28, 10, 10);
+
         g2.setColor(new Color(100, 100, 100));
         g2.setStroke(new BasicStroke(2.5f));
         g2.drawRoundRect(x, y, 42, 28, 10, 10);
@@ -191,6 +205,7 @@ drawCabinBlock(g2, leftBlockX2, leftBlockY2, block2W, block2H);
     private void drawCabinBlock(Graphics2D g2, int x, int y, int w, int h) {
         g2.setColor(new Color(245, 245, 245));
         g2.fillRoundRect(x, y, w, h, 14, 14);
+
         g2.setColor(new Color(180, 180, 180));
         g2.setStroke(new BasicStroke(1.8f));
         g2.drawRoundRect(x, y, w, h, 14, 14);

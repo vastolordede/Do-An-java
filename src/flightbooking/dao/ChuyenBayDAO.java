@@ -235,4 +235,15 @@ public boolean existsChuyenBay(int tuyenBayId, java.time.LocalDateTime gioKhoiHa
     }
     return false;
 }
+public boolean existsByMayBayId(int mayBayId) throws SQLException {
+    String sql = "select 1 from chuyenbay where maybay_id = ? limit 1";
+
+    try (Connection c = getConnection();
+         PreparedStatement ps = c.prepareStatement(sql)) {
+        ps.setInt(1, mayBayId);
+        try (ResultSet rs = ps.executeQuery()) {
+            return rs.next();
+        }
+    }
+}
 }

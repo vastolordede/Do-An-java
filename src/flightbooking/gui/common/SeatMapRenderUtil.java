@@ -7,6 +7,8 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class SeatMapRenderUtil {
 
@@ -26,10 +28,10 @@ public class SeatMapRenderUtil {
             return new JLabel("Không có dữ liệu ghế", SwingConstants.CENTER);
         }
 
-        int maxRow = 0; // 1,2,3...
-        int maxCol = 0; // A,B,C...
+        int maxRow = 0;
+        SortedSet<Integer> usedCols = new TreeSet<>();
+        Map<String, GheDTO> seatMap = new HashMap<>();
 
-        Map<String, GheDTO> seatMap = new HashMap<String, GheDTO>();
         for (GheDTO g : seats) {
             if (g == null) continue;
 
@@ -38,11 +40,17 @@ public class SeatMapRenderUtil {
 
             if (row <= 0 || col <= 0) continue;
 
-            if (row > maxRow) maxRow = row;
-            if (col > maxCol) maxCol = col;
-
+            maxRow = Math.max(maxRow, row);
+            usedCols.add(col);
             seatMap.put(key(row, col), g);
         }
+
+        if (maxRow <= 0 || usedCols.isEmpty()) {
+            return new JLabel("Không có dữ liệu ghế hợp lệ", SwingConstants.CENTER);
+        }
+
+        int minCol = usedCols.first();
+        int maxCol = usedCols.last();
 
         JPanel grid = new JPanel(new GridBagLayout());
         grid.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
@@ -53,27 +61,35 @@ public class SeatMapRenderUtil {
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
 
-        // ô góc trái trên
+        // Góc trái trên
         gbc.gridx = 0;
         gbc.gridy = 0;
         grid.add(createCornerCell(), gbc);
 
-        // header ngang: 1 2 3 4 ...
+        // Header ngang: 1 2 3 4 ... (row_index)
         for (int row = 1; row <= maxRow; row++) {
             gbc.gridx = row;
             gbc.gridy = 0;
             grid.add(createHeaderCell(String.valueOf(row)), gbc);
         }
 
-        // body
-        for (int col = 1; col <= maxCol; col++) {
+        // Body:
+        // Cột trái = A B [trống] D E
+        // Trong thân = ghế theo (row, col)
+        int visualY = 1;
+        for (int col = minCol; col <= maxCol; col++) {
             gbc.gridx = 0;
-            gbc.gridy = col;
-            grid.add(createHeaderCell(colToLetter(col)), gbc);
+            gbc.gridy = visualY;
+
+            if (usedCols.contains(col)) {
+                grid.add(createHeaderCell(colToLetter(col)), gbc);
+            } else {
+                grid.add(createEmptyHeaderCell(), gbc);
+            }
 
             for (int row = 1; row <= maxRow; row++) {
                 gbc.gridx = row;
-                gbc.gridy = col;
+                gbc.gridy = visualY;
 
                 GheDTO ghe = seatMap.get(key(row, col));
                 if (ghe != null) {
@@ -82,10 +98,13 @@ public class SeatMapRenderUtil {
                     grid.add(createEmptyCell(), gbc);
                 }
             }
+
+            visualY++;
         }
 
+        int visualColCount = maxCol - minCol + 1;
         int gridWidth = PADDING * 2 + HEADER_W + maxRow * CELL_W + (maxRow + 1) * GAP;
-        int gridHeight = PADDING * 2 + HEADER_H + maxCol * CELL_H + (maxCol + 1) * GAP;
+        int gridHeight = PADDING * 2 + HEADER_H + visualColCount * CELL_H + (visualColCount + 1) * GAP;
         grid.setPreferredSize(new Dimension(gridWidth, gridHeight));
 
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -99,8 +118,7 @@ public class SeatMapRenderUtil {
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getHorizontalScrollBar().setUnitIncrement(16);
 
-        // viewport vừa phải: ghế nhiều thì scroll, không làm vỡ layout
-        int viewportW = Math.min(gridWidth + 10, 980);
+        int viewportW = Math.min(gridWidth + 10, 1200);
         int viewportH = Math.min(gridHeight + 10, 420);
         scroll.setPreferredSize(new Dimension(viewportW, viewportH));
 
@@ -112,7 +130,7 @@ public class SeatMapRenderUtil {
     }
 
     private static int safeInt(Integer v) {
-        return v == null ? 0 : v.intValue();
+        return v == null ? 0 : v;
     }
 
     private static JComponent createCornerCell() {
@@ -131,6 +149,13 @@ public class SeatMapRenderUtil {
         return lb;
     }
 
+    private static JComponent createEmptyHeaderCell() {
+        JPanel p = new JPanel();
+        p.setPreferredSize(new Dimension(HEADER_W, HEADER_H));
+        p.setOpaque(false);
+        return p;
+    }
+
     private static JComponent createEmptyCell() {
         JPanel p = new JPanel();
         p.setPreferredSize(new Dimension(CELL_W, CELL_H));
@@ -144,16 +169,16 @@ public class SeatMapRenderUtil {
 
     public static void colorSeat(JButton btn, int hangGheId) {
         switch (hangGheId) {
-            case 3: // First
+            case 3:
                 btn.setBackground(new Color(255, 180, 180));
                 break;
-            case 2: // Business
+            case 2:
                 btn.setBackground(new Color(255, 220, 150));
                 break;
-            case 4: // Premium Economy
+            case 4:
                 btn.setBackground(new Color(210, 255, 210));
                 break;
-            case 1: // Economy
+            case 1:
                 btn.setBackground(new Color(200, 230, 255));
                 break;
             default:
