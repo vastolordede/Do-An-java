@@ -228,12 +228,12 @@ public class PnlQuanLyMayBay extends JPanel {
 
         JPanel pnlTop = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pnlTop.add(btnAddConfig);
-        pnlTop.add(new JLabel("Tổng hàng:"));
-        pnlTop.add(spTongHang);
-        pnlTop.add(new JLabel("Ghế trái:"));
-        pnlTop.add(spGheTrai);
-        pnlTop.add(new JLabel("Ghế phải:"));
-        pnlTop.add(spGhePhai);
+        // pnlTop.add(new JLabel("Tổng hàng:"));
+        // pnlTop.add(spTongHang);
+        // pnlTop.add(new JLabel("Ghế trái:"));
+        // pnlTop.add(spGheTrai);
+        // pnlTop.add(new JLabel("Ghế phải:"));
+        // pnlTop.add(spGhePhai);
 
         Runnable addRowUI = () -> {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
@@ -387,10 +387,10 @@ public class PnlQuanLyMayBay extends JPanel {
         pnlTop.add(Box.createHorizontalStrut(14));
         pnlTop.add(btnAddConfig);
         pnlTop.add(Box.createHorizontalStrut(14));
-        pnlTop.add(new JLabel("Ghế trái:"));
-        pnlTop.add(spGheTrai);
-        pnlTop.add(new JLabel("Ghế phải:"));
-        pnlTop.add(spGhePhai);
+        // pnlTop.add(new JLabel("Ghế trái:"));
+        // pnlTop.add(spGheTrai);
+        // pnlTop.add(new JLabel("Ghế phải:"));
+        // pnlTop.add(spGhePhai);
 
         java.util.function.BiConsumer<HangGheItem, Integer> addEditRowUI = (hangItem, soLuong) -> {
             JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));

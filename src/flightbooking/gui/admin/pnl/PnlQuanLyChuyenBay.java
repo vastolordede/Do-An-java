@@ -404,16 +404,16 @@ spGioDen.setEditor(new JSpinner.DateEditor(spGioDen, "yyyy-MM-dd HH:mm"));
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.add(new SeatMapPanel(chuyenBayId, mayBayId), BorderLayout.CENTER);
 
-        JButton btnReloadSeat = AdminTheme.createActionButton("🔄 Reload sơ đồ ghế", AdminTheme.ButtonRole.NEUTRAL);
-        btnReloadSeat.addActionListener(e -> {
-            wrapper.removeAll();
-            wrapper.add(new SeatMapPanel(chuyenBayId, mayBayId), BorderLayout.CENTER);
-            wrapper.revalidate();
-            wrapper.repaint();
-        });
+        // // JButton btnReloadSeat = AdminTheme.createActionButton("🔄 Reload sơ đồ ghế", AdminTheme.ButtonRole.NEUTRAL);
+        // btnReloadSeat.addActionListener(e -> {
+        //     wrapper.removeAll();
+        //     wrapper.add(new SeatMapPanel(chuyenBayId, mayBayId), BorderLayout.CENTER);
+        //     wrapper.revalidate();
+        //     wrapper.repaint();
+        // });
 
         JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        south.add(btnReloadSeat);
+        // south.add(btnReloadSeat);
 
         d.add(wrapper, BorderLayout.CENTER);
         d.add(south, BorderLayout.SOUTH);
